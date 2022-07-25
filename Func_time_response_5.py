@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-def TimeResponseV(TW_f, TW_r, FmotionRatioWD, RmotionRatioWD, FmotionRatioWS, RmotionRatioWS,
+def RSF_transient_response_V(TW_f, TW_r, FmotionRatioWD, RmotionRatioWD, FmotionRatioWS, RmotionRatioWS,
                 fSlowBump, rSlowBump, fSlowRebound, rSlowRebound,
                 fFastBump, rFastBump, fFastRebound, rFastRebound,
                 kneeSpeedFB, kneeSpeedRB, kneeSpeedFR, kneeSpeedRR,

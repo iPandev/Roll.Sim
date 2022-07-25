@@ -1,38 +1,32 @@
 version = '0.2.0'
 
 #Import Python modules
-import pandas as pd
-import math
 import numpy as np
 import matplotlib.pyplot as plt
-from tkinter import *
-from string import *
-from math import *
+import tkinter as tk
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,  
-NavigationToolbar2Tk)
-from functools import partial
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 #Import Roll.Sim functions
-from Func_wheel_rate import *
-from Func_undamped_ride_frequency import *
-from Func_wheel_damping_ratio import *
-from Func_weight_dist import *
-from Func_steady_state_roll import *
-from Func_time_response_5 import *
+from Func_wheel_rate import RSF_wheel_rate
+from Func_undamped_ride_frequency import RSF_undamped_ride_freq
+from Func_wheel_damping_ratio import RSF_corner_damping_ratio
+from Func_weight_dist import RSF_weight_dist
+from Func_steady_state_roll import RSF_steady_state
+from Func_time_response_5 import RSF_transient_response_V
 
 if __name__ == '__main__':
     print('Welcome to Roll.Sim 0.2.0!')
 
-    safety = Tk()
-    safety.title('Roll.Sim 1.10')
+    safety = tk.Tk()
+    safety.title('Roll.Sim 0.2.0')
 
-    Label1 = Label(safety, wraplength=400, justify="center",
-                text="""Roll.Sim 1.10""", font=('bold')).grid(row=0, column=0)
+    Label1 = tk.Label(safety, wraplength=400, justify="center",
+                text="""Roll.Sim 0.2.0""", font=('bold')).grid(row=0, column=0)
 
-    Label1 = Label(safety, wraplength=400, justify="center",
+    Label1 = tk.Label(safety, wraplength=400, justify="center",
                 text="""Vehicle Response Simulator
-    Copyright (C) 2021 Ivan S. Pandev
+    Copyright (C) 2022 Ivan S. Pandev
 
     Welcome! Roll.Sim is a highly experimental, limited, open-loop, as-yet unvalidated simulator of vehicle behavior, and only for academic purposes, with no guarantee whatsoever of its results correlating to real-world behavior. DO NOT apply changes to real-world vehicles based solely on Roll.Sim results. Doing so can result in damage to property, bodily injury, or death. By using Roll.Sim, you, the user, accept this risk and agree never to hold Roll.Sim’s creators responsible for such damages.
 
@@ -41,418 +35,416 @@ if __name__ == '__main__':
 
     def Home():  
         
-        root = Tk()
-        root.title('Roll.Sim 1.10')
-
-        #Data Gathering
+        root = tk.Tk()
+        root.title('Roll.Sim 0.2.0')
 
         #FRONT DATA GATHERING
 
-        LabelM = Label(root, text='_______FRONT_______').grid(row=0, column=0)
-        LabelM = Label(root, text='Base').grid(row=0, column=1)
-        LabelM = Label(root, text='Mod').grid(row=0, column=2)
-        LabelM = Label(root, text='     ').grid(row=1, column=0)
-        LabelM = Label(root, text='Base').grid(row=0, column=5)
-        LabelM = Label(root, text='Mod').grid(row=0, column=6)
+        LabelM = tk.Label(root, text='_______FRONT_______').grid(row=0, column=0)
+        LabelM = tk.Label(root, text='Base').grid(row=0, column=1)
+        LabelM = tk.Label(root, text='Mod').grid(row=0, column=2)
+        LabelM = tk.Label(root, text='     ').grid(row=1, column=0)
+        LabelM = tk.Label(root, text='Base').grid(row=0, column=5)
+        LabelM = tk.Label(root, text='Mod').grid(row=0, column=6)
 
-        Label1 = Label(root, text="Spring Rate:").grid(row=1,column=0)
-        eFSpringRate = Entry(root, width=7)
+        Label1 = tk.Label(root, text="Spring Rate:").grid(row=1,column=0)
+        eFSpringRate = tk.Entry(root, width=7)
         eFSpringRate.grid(row=1, column=1)
         eFSpringRate.insert(0, "450")
-        eFSpringRateMod = Entry(root, width=7)
+        eFSpringRateMod = tk.Entry(root, width=7)
         eFSpringRateMod.grid(row=1, column=2)
         eFSpringRateMod.insert(0, "450")
-        Label1u = Label(root, text=" lbs/in.").grid(row=1,column=3)
+        Label1u = tk.Label(root, text=" lbs/in.").grid(row=1,column=3)
 
-        Label2 = Label(root, text="Wheel:Spring Motion Ratio:").grid(row=2,column=0)
-        eFMotionRatioWS = Entry(root, width=7)
+        Label2 = tk.Label(root, text="Wheel:Spring Motion Ratio:").grid(row=2,column=0)
+        eFMotionRatioWS = tk.Entry(root, width=7)
         eFMotionRatioWS.grid(row=2, column=1)
         eFMotionRatioWS.insert(0, "1.1")
-        eFMotionRatioWSMod = Entry(root, width=7)
+        eFMotionRatioWSMod = tk.Entry(root, width=7)
         eFMotionRatioWSMod.grid(row=2, column=2)
         eFMotionRatioWSMod.insert(0, "1.1")
-        Label2u = Label(root, text=" W:S ").grid(row=2,column=3)
+        Label2u = tk.Label(root, text=" W:S ").grid(row=2,column=3)
 
-        Label7 = Label(root, text="Wheel:Damper Motion Ratio:").grid(row=3,column=0)
-        eFMotionRatioWD = Entry(root, width=7)
+        Label7 = tk.Label(root, text="Wheel:Damper Motion Ratio:").grid(row=3,column=0)
+        eFMotionRatioWD = tk.Entry(root, width=7)
         eFMotionRatioWD.grid(row=3, column=1)
         eFMotionRatioWD.insert(0, "1.1")
-        eFMotionRatioWDMod = Entry(root, width=7)
+        eFMotionRatioWDMod = tk.Entry(root, width=7)
         eFMotionRatioWDMod.grid(row=3, column=2)
         eFMotionRatioWDMod.insert(0, "1.1")
-        Label7u = Label(root, text=" W:D ").grid(row=3,column=3)
+        Label7u = tk.Label(root, text=" W:D ").grid(row=3,column=3)
 
-        Label8 = Label(root, text="Damper Rate, Slow Bump:").grid(row=4,column=0)
-        eFDamperRateSB = Entry(root, width=7)
+        Label8 = tk.Label(root, text="Damper Rate, Slow Bump:").grid(row=4,column=0)
+        eFDamperRateSB = tk.Entry(root, width=7)
         eFDamperRateSB.grid(row=4, column=1)
         eFDamperRateSB.insert(0, "3846.2")
-        eFDamperRateSBMod = Entry(root, width=7)
+        eFDamperRateSBMod = tk.Entry(root, width=7)
         eFDamperRateSBMod.grid(row=4, column=2)
         eFDamperRateSBMod.insert(0, "3846.2")
-        Label8u = Label(root, text=" N/(m/s) ").grid(row=4,column=3)
+        Label8u = tk.Label(root, text=" N/(m/s) ").grid(row=4,column=3)
 
-        Label9 = Label(root, text="Damper Rate, Fast Bump:").grid(row=5,column=0)
-        eFDamperRateFB = Entry(root, width=7)
+        Label9 = tk.Label(root, text="Damper Rate, Fast Bump:").grid(row=5,column=0)
+        eFDamperRateFB = tk.Entry(root, width=7)
         eFDamperRateFB.grid(row=5, column=1)
         eFDamperRateFB.insert(0, "1000")
-        eFDamperRateFBMod = Entry(root, width=7)
+        eFDamperRateFBMod = tk.Entry(root, width=7)
         eFDamperRateFBMod.grid(row=5, column=2)
         eFDamperRateFBMod.insert(0, "1000")
-        Label9u = Label(root, text=" N/(m/s) ").grid(row=5,column=3)
+        Label9u = tk.Label(root, text=" N/(m/s) ").grid(row=5,column=3)
 
-        Label10 = Label(root, text="Damper Rate, Slow Rebound:").grid(row=6,column=0)
-        eFDamperRateSR = Entry(root, width=7)
+        Label10 = tk.Label(root, text="Damper Rate, Slow Rebound:").grid(row=6,column=0)
+        eFDamperRateSR = tk.Entry(root, width=7)
         eFDamperRateSR.grid(row=6, column=1)
         eFDamperRateSR.insert(0, "6153.0")
-        eFDamperRateSRMod = Entry(root, width=7)
+        eFDamperRateSRMod = tk.Entry(root, width=7)
         eFDamperRateSRMod.grid(row=6, column=2)
         eFDamperRateSRMod.insert(0, "6153.0")
-        Label10u = Label(root, text=" N/(m/s) ").grid(row=6,column=3)
+        Label10u = tk.Label(root, text=" N/(m/s) ").grid(row=6,column=3)
 
-        Label11 = Label(root, text="Damper Rate, Fast Rebound:").grid(row=7,column=0)
-        eFDamperRateFR = Entry(root, width=7)
+        Label11 = tk.Label(root, text="Damper Rate, Fast Rebound:").grid(row=7,column=0)
+        eFDamperRateFR = tk.Entry(root, width=7)
         eFDamperRateFR.grid(row=7, column=1)
         eFDamperRateFR.insert(0, "2500.0")
-        eFDamperRateFRMod = Entry(root, width=7)
+        eFDamperRateFRMod = tk.Entry(root, width=7)
         eFDamperRateFRMod.grid(row=7, column=2)
         eFDamperRateFRMod.insert(0, "2500.0")
-        Label11u = Label(root, text=" N/(m/s) ").grid(row=7,column=3)
+        Label11u = tk.Label(root, text=" N/(m/s) ").grid(row=7,column=3)
 
-        Label12 = Label(root, text="Knee Speed, Bump:").grid(row=8,column=0)
-        eFKneeSpeedBump = Entry(root, width=7)
+        Label12 = tk.Label(root, text="Knee Speed, Bump:").grid(row=8,column=0)
+        eFKneeSpeedBump = tk.Entry(root, width=7)
         eFKneeSpeedBump.grid(row=8, column=1)
         eFKneeSpeedBump.insert(0, "0.130")
-        eFKneeSpeedBumpMod = Entry(root, width=7)
+        eFKneeSpeedBumpMod = tk.Entry(root, width=7)
         eFKneeSpeedBumpMod.grid(row=8, column=2)
         eFKneeSpeedBumpMod.insert(0, "0.130")
-        Label12u = Label(root, text=" m/s ").grid(row=8,column=3)
+        Label12u = tk.Label(root, text=" m/s ").grid(row=8,column=3)
 
-        Label13 = Label(root, text="Knee Speed, Rebound:").grid(row=9,column=0)
-        eFKneeSpeedR = Entry(root, width=7)
+        Label13 = tk.Label(root, text="Knee Speed, Rebound:").grid(row=9,column=0)
+        eFKneeSpeedR = tk.Entry(root, width=7)
         eFKneeSpeedR.grid(row=9, column=1)
         eFKneeSpeedR.insert(0, "0.130")
-        eFKneeSpeedRMod = Entry(root, width=7)
+        eFKneeSpeedRMod = tk.Entry(root, width=7)
         eFKneeSpeedRMod.grid(row=9, column=2)
         eFKneeSpeedRMod.insert(0, "0.130")
-        Label13u = Label(root, text=" m/s ").grid(row=9,column=3)
+        Label13u = tk.Label(root, text=" m/s ").grid(row=9,column=3)
 
-        Label14 = Label(root, text="ARB Rate at Wheel:").grid(row=10,column=0)
-        eARBRateF = Entry(root, width=7)
+        Label14 = tk.Label(root, text="ARB Rate at Wheel:").grid(row=10,column=0)
+        eARBRateF = tk.Entry(root, width=7)
         eARBRateF.grid(row=10, column=1)
         eARBRateF.insert(0, "75")
-        eARBRateFMod = Entry(root, width=7)
+        eARBRateFMod = tk.Entry(root, width=7)
         eARBRateFMod.grid(row=10, column=2)
         eARBRateFMod.insert(0, "75")
-        Label14u = Label(root, text=" lbs/in. ").grid(row=10,column=3)
+        Label14u = tk.Label(root, text=" lbs/in. ").grid(row=10,column=3)
 
-        Label11 = Label(root, text="Roll Center Height:").grid(row=11,column=0)
-        eRCHeightF = Entry(root, width=7)
+        Label11 = tk.Label(root, text="Roll Center Height:").grid(row=11,column=0)
+        eRCHeightF = tk.Entry(root, width=7)
         eRCHeightF.grid(row=11, column=1)
         eRCHeightF.insert(0, "4.0")
-        eRCHeightFMod = Entry(root, width=7)
+        eRCHeightFMod = tk.Entry(root, width=7)
         eRCHeightFMod.grid(row=11, column=2)
         eRCHeightFMod.insert(0, "4.0")
-        Label11u = Label(root, text=" in. ").grid(row=11,column=3)
+        Label11u = tk.Label(root, text=" in. ").grid(row=11,column=3)
 
-        Label12 = Label(root, text="Tire Stiffness:").grid(row=12,column=0)
-        eTireKF = Entry(root, width=7)
+        Label12 = tk.Label(root, text="Tire Stiffness:").grid(row=12,column=0)
+        eTireKF = tk.Entry(root, width=7)
         eTireKF.grid(row=12, column=1)
         eTireKF.insert(0, "1720")
-        eTireKFMod = Entry(root, width=7)
+        eTireKFMod = tk.Entry(root, width=7)
         eTireKFMod.grid(row=12, column=2)
         eTireKFMod.insert(0, "1720")
-        Label12u = Label(root, text=" lbs/in. ").grid(row=12,column=3)
+        Label12u = tk.Label(root, text=" lbs/in. ").grid(row=12,column=3)
         
-        Label13 = Label(root, text="Tire Diameter:").grid(row=13,column=0)
-        eTireDF = Entry(root, width=7)
+        Label13 = tk.Label(root, text="Tire Diameter:").grid(row=13,column=0)
+        eTireDF = tk.Entry(root, width=7)
         eTireDF.grid(row=13, column=1)
         eTireDF.insert(0, "23.5")
-        eTireDFMod = Entry(root, width=7)
+        eTireDFMod = tk.Entry(root, width=7)
         eTireDFMod.grid(row=13, column=2)
         eTireDFMod.insert(0, "23.5")
-        Label13u = Label(root, text=" in. ").grid(row=13,column=3)
+        Label13u = tk.Label(root, text=" in. ").grid(row=13,column=3)
 
-        Label14 = Label(root, text="Track Width:").grid(row=14,column=0)
-        eFTW = Entry(root, width=7)
+        Label14 = tk.Label(root, text="Track Width:").grid(row=14,column=0)
+        eFTW = tk.Entry(root, width=7)
         eFTW.grid(row=14, column=1)
         eFTW.insert(0, "60.0")
-        eFTWMod = Entry(root, width=7)
+        eFTWMod = tk.Entry(root, width=7)
         eFTWMod.grid(row=14, column=2)
         eFTWMod.insert(0, "60.0")
-        Label14u = Label(root, text=" in. ").grid(row=14,column=3)
+        Label14u = tk.Label(root, text=" in. ").grid(row=14,column=3)
 
-        Label15 = Label(root, text="Aerodynamic Load:").grid(row=15,column=0)
-        eFAeroLoad = Entry(root, width=7)
+        Label15 = tk.Label(root, text="Aerodynamic Load:").grid(row=15,column=0)
+        eFAeroLoad = tk.Entry(root, width=7)
         eFAeroLoad.grid(row=15, column=1)
         eFAeroLoad.insert(0, "32")
-        eFAeroLoadMod = Entry(root, width=7)
+        eFAeroLoadMod = tk.Entry(root, width=7)
         eFAeroLoadMod.grid(row=15, column=2)
         eFAeroLoadMod.insert(0, "32")
-        Label15u = Label(root, text=" lbs ").grid(row=15,column=3)
+        Label15u = tk.Label(root, text=" lbs ").grid(row=15,column=3)
 
         #MASSES DATA GATHERING_______________________________________________________________________________________________________
 
-        LabelM = Label(root, text='     ').grid(row=16, column=0)
-        LabelM = Label(root, text='_____MASS & INERTIA_____').grid(row=17, column=0)
-        LabelM = Label(root, text='Base').grid(row=17, column=1)
-        LabelM = Label(root, text='Mod').grid(row=17, column=2)
-        LabelM = Label(root, text='Base').grid(row=17, column=5)
-        LabelM = Label(root, text='Mod').grid(row=17, column=6)
+        LabelM = tk.Label(root, text='     ').grid(row=16, column=0)
+        LabelM = tk.Label(root, text='_____MASS & INERTIA_____').grid(row=17, column=0)
+        LabelM = tk.Label(root, text='Base').grid(row=17, column=1)
+        LabelM = tk.Label(root, text='Mod').grid(row=17, column=2)
+        LabelM = tk.Label(root, text='Base').grid(row=17, column=5)
+        LabelM = tk.Label(root, text='Mod').grid(row=17, column=6)
 
-        Label3 = Label(root, text="FL Corner Total Mass:").grid(row=18,column=0)
-        eFLCornerMass = Entry(root, width=7)
+        Label3 = tk.Label(root, text="FL Corner Total Mass:").grid(row=18,column=0)
+        eFLCornerMass = tk.Entry(root, width=7)
         eFLCornerMass.grid(row=18, column=1)
         eFLCornerMass.insert(0, "678")
-        eFLCornerMassMod = Entry(root, width=7)
+        eFLCornerMassMod = tk.Entry(root, width=7)
         eFLCornerMassMod.grid(row=18, column=2)
         eFLCornerMassMod.insert(0, "678")
-        Label3u = Label(root, text=" lbs").grid(row=18,column=3)
+        Label3u = tk.Label(root, text=" lbs").grid(row=18,column=3)
 
-        Label6 = Label(root, text="FL Corner Unsprung Mass:").grid(row=19,column=0)
-        eFLCornerUMass = Entry(root, width=7)
+        Label6 = tk.Label(root, text="FL Corner Unsprung Mass:").grid(row=19,column=0)
+        eFLCornerUMass = tk.Entry(root, width=7)
         eFLCornerUMass.grid(row=19, column=1)
         eFLCornerUMass.insert(0, "100")
-        eFLCornerUMassMod = Entry(root, width=7)
+        eFLCornerUMassMod = tk.Entry(root, width=7)
         eFLCornerUMassMod.grid(row=19, column=2)
         eFLCornerUMassMod.insert(0, "100")
-        Label6u = Label(root, text=" lbs").grid(row=19,column=3)
+        Label6u = tk.Label(root, text=" lbs").grid(row=19,column=3)
 
-        Label4 = Label(root, text="FR Corner Total Mass:").grid(row=18,column=7)
-        eFRCornerMass = Entry(root, width=7)
+        Label4 = tk.Label(root, text="FR Corner Total Mass:").grid(row=18,column=7)
+        eFRCornerMass = tk.Entry(root, width=7)
         eFRCornerMass.grid(row=18, column=5)
         eFRCornerMass.insert(0, "657")
-        eFRCornerMassMod = Entry(root, width=7)
+        eFRCornerMassMod = tk.Entry(root, width=7)
         eFRCornerMassMod.grid(row=18, column=6)
         eFRCornerMassMod.insert(0, "657")
 
-        Label20 = Label(root, text="FR Corner Unsprung Mass:").grid(row=19,column=7)
-        eFRCornerUMass = Entry(root, width=7)
+        Label20 = tk.Label(root, text="FR Corner Unsprung Mass:").grid(row=19,column=7)
+        eFRCornerUMass = tk.Entry(root, width=7)
         eFRCornerUMass.grid(row=19, column=5)
         eFRCornerUMass.insert(0, "100")
-        eFRCornerUMassMod = Entry(root, width=7)
+        eFRCornerUMassMod = tk.Entry(root, width=7)
         eFRCornerUMassMod.grid(row=19, column=6)
         eFRCornerUMassMod.insert(0, "100")
 
-        Label5 = Label(root, text="RL Corner Total Mass:").grid(row=20,column=0)
-        eRLCornerMass = Entry(root, width=7)
+        Label5 = tk.Label(root, text="RL Corner Total Mass:").grid(row=20,column=0)
+        eRLCornerMass = tk.Entry(root, width=7)
         eRLCornerMass.grid(row=20, column=1)
         eRLCornerMass.insert(0, "568")
-        eRLCornerMassMod = Entry(root, width=7)
+        eRLCornerMassMod = tk.Entry(root, width=7)
         eRLCornerMassMod.grid(row=20, column=2)
         eRLCornerMassMod.insert(0, "568")
-        Label5u = Label(root, text=" lbs").grid(row=20,column=3)
+        Label5u = tk.Label(root, text=" lbs").grid(row=20,column=3)
 
-        Label21 = Label(root, text="RL Corner Unsprung Mass:").grid(row=21,column=0)
-        eRLCornerUMass = Entry(root, width=7)
+        Label21 = tk.Label(root, text="RL Corner Unsprung Mass:").grid(row=21,column=0)
+        eRLCornerUMass = tk.Entry(root, width=7)
         eRLCornerUMass.grid(row=21, column=1)
         eRLCornerUMass.insert(0, "120")
-        eRLCornerUMassMod = Entry(root, width=7)
+        eRLCornerUMassMod = tk.Entry(root, width=7)
         eRLCornerUMassMod.grid(row=21, column=2)
         eRLCornerUMassMod.insert(0, "120")
-        Label21u = Label(root, text=" lbs").grid(row=21,column=3)
+        Label21u = tk.Label(root, text=" lbs").grid(row=21,column=3)
 
-        Label5 = Label(root, text="RR Corner Total Mass:").grid(row=20,column=7)
-        eRRCornerMass = Entry(root, width=7)
+        Label5 = tk.Label(root, text="RR Corner Total Mass:").grid(row=20,column=7)
+        eRRCornerMass = tk.Entry(root, width=7)
         eRRCornerMass.grid(row=20, column=5)
         eRRCornerMass.insert(0, "559")
-        eRRCornerMassMod = Entry(root, width=7)
+        eRRCornerMassMod = tk.Entry(root, width=7)
         eRRCornerMassMod.grid(row=20, column=6)
         eRRCornerMassMod.insert(0, "559")
 
-        Label22 = Label(root, text="RR Corner Unsprung Mass:").grid(row=21,column=7)
-        eRRCornerUMass = Entry(root, width=7)
+        Label22 = tk.Label(root, text="RR Corner Unsprung Mass:").grid(row=21,column=7)
+        eRRCornerUMass = tk.Entry(root, width=7)
         eRRCornerUMass.grid(row=21, column=5)
         eRRCornerUMass.insert(0, "120")
-        eRRCornerUMassMod = Entry(root, width=7)
+        eRRCornerUMassMod = tk.Entry(root, width=7)
         eRRCornerUMassMod.grid(row=21, column=6)
         eRRCornerUMassMod.insert(0, "120")
 
-        Label23 = Label(root, text=" CM Height: ").grid(row=22,column=0)
-        eCMHeight = Entry(root, width=7)
+        Label23 = tk.Label(root, text=" CM Height: ").grid(row=22,column=0)
+        eCMHeight = tk.Entry(root, width=7)
         eCMHeight.grid(row=22, column=1)
         eCMHeight.insert(0, "19.5")
-        eCMHeightMod = Entry(root, width=7)
+        eCMHeightMod = tk.Entry(root, width=7)
         eCMHeightMod.grid(row=22, column=2)
         eCMHeightMod.insert(0, "19.5")
-        Label23u = Label(root, text=" in.").grid(row=22,column=3)
+        Label23u = tk.Label(root, text=" in.").grid(row=22,column=3)
 
-        Label24 = Label(root, text=" Roll Inertia: ").grid(row=23,column=0)
-        eRollInertia = Entry(root, width=7)
+        Label24 = tk.Label(root, text=" Roll Inertia: ").grid(row=23,column=0)
+        eRollInertia = tk.Entry(root, width=7)
         eRollInertia.grid(row=23, column=1)
         eRollInertia.insert(0, "1318000")
-        eRollInertiaMod = Entry(root, width=7)
+        eRollInertiaMod = tk.Entry(root, width=7)
         eRollInertiaMod.grid(row=23, column=2)
         eRollInertiaMod.insert(0, "1318000")
-        Label24u = Label(root, text=" lbs*in^2").grid(row=23,column=3)
+        Label24u = tk.Label(root, text=" lbs*in^2").grid(row=23,column=3)
 
         #REAR DATA GATHERING #VARIABLE NAMES NEED CHANGING__________________________________________________________________________________________________
 
-        LabelM = Label(root, text='_______REAR_______').grid(row=0, column=7)
-        LabelM = Label(root, text='Base').grid(row=30, column=1)
-        LabelM = Label(root, text='Mod').grid(row=30, column=2)
-        LabelM = Label(root, text='     ').grid(row=29, column=0)
+        LabelM = tk.Label(root, text='_______REAR_______').grid(row=0, column=7)
+        LabelM = tk.Label(root, text='Base').grid(row=30, column=1)
+        LabelM = tk.Label(root, text='Mod').grid(row=30, column=2)
+        LabelM = tk.Label(root, text='     ').grid(row=29, column=0)
 
-        Label31 = Label(root, text="Spring Rate:").grid(row=1,column=7)
-        eRSpringRate = Entry(root, width=7)
+        Label31 = tk.Label(root, text="Spring Rate:").grid(row=1,column=7)
+        eRSpringRate = tk.Entry(root, width=7)
         eRSpringRate.grid(row=1, column=5)
         eRSpringRate.insert(0, "750")
-        eRSpringRateMod = Entry(root, width=7)
+        eRSpringRateMod = tk.Entry(root, width=7)
         eRSpringRateMod.grid(row=1, column=6)
         eRSpringRateMod.insert(0, "750")
 
-        Label32 = Label(root, text="Wheel:Spring Motion Ratio:").grid(row=2,column=7)
-        eRMotionRatioWS = Entry(root, width=7)
+        Label32 = tk.Label(root, text="Wheel:Spring Motion Ratio:").grid(row=2,column=7)
+        eRMotionRatioWS = tk.Entry(root, width=7)
         eRMotionRatioWS.grid(row=2, column=5)
         eRMotionRatioWS.insert(0, "1.48")
-        eRMotionRatioWSMod = Entry(root, width=7)
+        eRMotionRatioWSMod = tk.Entry(root, width=7)
         eRMotionRatioWSMod.grid(row=2, column=6)
         eRMotionRatioWSMod.insert(0, "1.48")
 
-        Label33 = Label(root, text="Wheel:Damper Motion Ratio:").grid(row=3,column=7)
-        eRMotionRatioWD = Entry(root, width=7)
+        Label33 = tk.Label(root, text="Wheel:Damper Motion Ratio:").grid(row=3,column=7)
+        eRMotionRatioWD = tk.Entry(root, width=7)
         eRMotionRatioWD.grid(row=3, column=5)
         eRMotionRatioWD.insert(0, "1.05")
-        eRMotionRatioWDMod = Entry(root, width=7)
+        eRMotionRatioWDMod = tk.Entry(root, width=7)
         eRMotionRatioWDMod.grid(row=3, column=6)
         eRMotionRatioWDMod.insert(0, "1.05")
 
-        Label34 = Label(root, text="Damper Rate, Slow Bump:").grid(row=4,column=7)
-        eRDamperRateSB = Entry(root, width=7)
+        Label34 = tk.Label(root, text="Damper Rate, Slow Bump:").grid(row=4,column=7)
+        eRDamperRateSB = tk.Entry(root, width=7)
         eRDamperRateSB.grid(row=4, column=5)
         eRDamperRateSB.insert(0, "2384.0")
-        eRDamperRateSBMod = Entry(root, width=7)
+        eRDamperRateSBMod = tk.Entry(root, width=7)
         eRDamperRateSBMod.grid(row=4, column=6)
         eRDamperRateSBMod.insert(0, "2384.0")
 
-        Label35 = Label(root, text="Damper Rate, Fast Bump:").grid(row=5,column=7)
-        eRDamperRateFB = Entry(root, width=7)
+        Label35 = tk.Label(root, text="Damper Rate, Fast Bump:").grid(row=5,column=7)
+        eRDamperRateFB = tk.Entry(root, width=7)
         eRDamperRateFB.grid(row=5, column=5)
         eRDamperRateFB.insert(0, "700")
-        eRDamperRateFBMod = Entry(root, width=7)
+        eRDamperRateFBMod = tk.Entry(root, width=7)
         eRDamperRateFBMod.grid(row=5, column=6)
         eRDamperRateFBMod.insert(0, "700")
 
-        Label36 = Label(root, text="Damper Rate, Slow Rebound:").grid(row=6,column=7)
-        eRDamperRateSR = Entry(root, width=7)
+        Label36 = tk.Label(root, text="Damper Rate, Slow Rebound:").grid(row=6,column=7)
+        eRDamperRateSR = tk.Entry(root, width=7)
         eRDamperRateSR.grid(row=6, column=5)
         eRDamperRateSR.insert(0, "4615.4")
-        eRDamperRateSRMod = Entry(root, width=7)
+        eRDamperRateSRMod = tk.Entry(root, width=7)
         eRDamperRateSRMod.grid(row=6, column=6)
         eRDamperRateSRMod.insert(0, "4615.4")
 
-        Label37 = Label(root, text="Damper Rate, Fast Rebound:").grid(row=7,column=7)
-        eRDamperRateFR = Entry(root, width=7)
+        Label37 = tk.Label(root, text="Damper Rate, Fast Rebound:").grid(row=7,column=7)
+        eRDamperRateFR = tk.Entry(root, width=7)
         eRDamperRateFR.grid(row=7, column=5)
         eRDamperRateFR.insert(0, "2302.5")
-        eRDamperRateFRMod = Entry(root, width=7)
+        eRDamperRateFRMod = tk.Entry(root, width=7)
         eRDamperRateFRMod.grid(row=7, column=6)
         eRDamperRateFRMod.insert(0, "2302.5")
 
-        Label38 = Label(root, text="Knee Speed, Bump:").grid(row=8,column=7)
-        eRKneeSpeedBump = Entry(root, width=7)
+        Label38 = tk.Label(root, text="Knee Speed, Bump:").grid(row=8,column=7)
+        eRKneeSpeedBump = tk.Entry(root, width=7)
         eRKneeSpeedBump.grid(row=8, column=5)
         eRKneeSpeedBump.insert(0, "0.130")
-        eRKneeSpeedBumpMod = Entry(root, width=7)
+        eRKneeSpeedBumpMod = tk.Entry(root, width=7)
         eRKneeSpeedBumpMod.grid(row=8, column=6)
         eRKneeSpeedBumpMod.insert(0, "0.130")
 
-        Label39 = Label(root, text="Knee Speed, Rebound:").grid(row=9,column=7)
-        eRKneeSpeedR = Entry(root, width=7)
+        Label39 = tk.Label(root, text="Knee Speed, Rebound:").grid(row=9,column=7)
+        eRKneeSpeedR = tk.Entry(root, width=7)
         eRKneeSpeedR.grid(row=9, column=5)
         eRKneeSpeedR.insert(0, "0.130")
-        eRKneeSpeedRMod = Entry(root, width=7)
+        eRKneeSpeedRMod = tk.Entry(root, width=7)
         eRKneeSpeedRMod.grid(row=9, column=6)
         eRKneeSpeedRMod.insert(0, "0.130")
 
-        Label40 = Label(root, text="ARB Rate at Wheel:").grid(row=10,column=7)
-        eARBRateR = Entry(root, width=7)
+        Label40 = tk.Label(root, text="ARB Rate at Wheel:").grid(row=10,column=7)
+        eARBRateR = tk.Entry(root, width=7)
         eARBRateR.grid(row=10, column=5)
         eARBRateR.insert(0, "25")
-        eARBRateRMod = Entry(root, width=7)
+        eARBRateRMod = tk.Entry(root, width=7)
         eARBRateRMod.grid(row=10, column=6)
         eARBRateRMod.insert(0, "25")
 
-        Label41 = Label(root, text="Roll Center Height:").grid(row=11,column=7)
-        eRCHeightR = Entry(root, width=7)
+        Label41 = tk.Label(root, text="Roll Center Height:").grid(row=11,column=7)
+        eRCHeightR = tk.Entry(root, width=7)
         eRCHeightR.grid(row=11, column=5)
         eRCHeightR.insert(0, "5.0")
-        eRCHeightRMod = Entry(root, width=7)
+        eRCHeightRMod = tk.Entry(root, width=7)
         eRCHeightRMod.grid(row=11, column=6)
         eRCHeightRMod.insert(0, "5.0")
 
-        Label42 = Label(root, text="Tire Stiffness:").grid(row=12,column=7)
-        eTireKR = Entry(root, width=7)
+        Label42 = tk.Label(root, text="Tire Stiffness:").grid(row=12,column=7)
+        eTireKR = tk.Entry(root, width=7)
         eTireKR.grid(row=12, column=5)
         eTireKR.insert(0, "1720")
-        eTireKRMod = Entry(root, width=7)
+        eTireKRMod = tk.Entry(root, width=7)
         eTireKRMod.grid(row=12, column=6)
         eTireKRMod.insert(0, "1720")
         
-        Label43 = Label(root, text="Tire Diameter:").grid(row=13,column=7)
-        eTireDR = Entry(root, width=7)
+        Label43 = tk.Label(root, text="Tire Diameter:").grid(row=13,column=7)
+        eTireDR = tk.Entry(root, width=7)
         eTireDR.grid(row=13, column=5)
         eTireDR.insert(0, "23.5")
-        eTireDRMod = Entry(root, width=7)
+        eTireDRMod = tk.Entry(root, width=7)
         eTireDRMod.grid(row=13, column=6)
         eTireDRMod.insert(0, "23.5")
 
-        Label44 = Label(root, text="Track Width:").grid(row=14,column=7)
-        eRTW = Entry(root, width=7)
+        Label44 = tk.Label(root, text="Track Width:").grid(row=14,column=7)
+        eRTW = tk.Entry(root, width=7)
         eRTW.grid(row=14, column=5)
         eRTW.insert(0, "62.0")
-        eRTWMod = Entry(root, width=7)
+        eRTWMod = tk.Entry(root, width=7)
         eRTWMod.grid(row=14, column=6)
         eRTWMod.insert(0, "62.0")
 
-        Label45 = Label(root, text="Aerodynamic Load:").grid(row=15,column=7)
-        eRAeroLoad = Entry(root, width=7)
+        Label45 = tk.Label(root, text="Aerodynamic Load:").grid(row=15,column=7)
+        eRAeroLoad = tk.Entry(root, width=7)
         eRAeroLoad.grid(row=15, column=5)
         eRAeroLoad.insert(0, "30")
-        eRAeroLoadMod = Entry(root, width=7)
+        eRAeroLoadMod = tk.Entry(root, width=7)
         eRAeroLoadMod.grid(row=15, column=6)
         eRAeroLoadMod.insert(0, "30")
 
         #INPUT G FORCE___________________________________________________________________________________________________________
 
-        LabelM = Label(root, text='___FORCE FUNCTION___').grid(row=30, column=0)
+        LabelM = tk.Label(root, text='___FORCE FUNCTION___').grid(row=30, column=0)
 
-        Label42 = Label(root, text="Duration:").grid(row=51,column=0)
-        eSec = Entry(root, width=7)
+        Label42 = tk.Label(root, text="Duration:").grid(row=51,column=0)
+        eSec = tk.Entry(root, width=7)
         eSec.grid(row=51, column=1)
         eSec.insert(0, "0.5")
-        Label42u = Label(root, text=" s ").grid(row=51,column=3)
+        Label42u = tk.Label(root, text=" s ").grid(row=51,column=3)
         
-        Label41 = Label(root, text="Max Sustained Lateral G:").grid(row=52,column=0)
-        eMaxG = Entry(root, width=7)
+        Label41 = tk.Label(root, text="Max Sustained Lateral G:").grid(row=52,column=0)
+        eMaxG = tk.Entry(root, width=7)
         eMaxG.grid(row=52, column=1)
         eMaxG.insert(0, "1.4")
-        eMaxGMod = Entry(root, width=7)
+        eMaxGMod = tk.Entry(root, width=7)
         eMaxGMod.grid(row=52, column=2)
         eMaxGMod.insert(0, "1.4")
-        Label41u = Label(root, text=" 9.8(m/(s^2)) ").grid(row=52,column=3)
+        Label41u = tk.Label(root, text=" 9.8(m/(s^2)) ").grid(row=52,column=3)
         
-        Label43 = Label(root, text="Ramp Time:").grid(row=53,column=0)
-        eRampT = Entry(root, width=7)
+        Label43 = tk.Label(root, text="Ramp Time:").grid(row=53,column=0)
+        eRampT = tk.Entry(root, width=7)
         eRampT.grid(row=53, column=1)
         eRampT.insert(0, "0.15")
-        eRampTMod = Entry(root, width=7)
+        eRampTMod = tk.Entry(root, width=7)
         eRampTMod.grid(row=53, column=2)
         eRampTMod.insert(0, "0.15")
-        Label43u = Label(root, text=" s ").grid(row=53,column=3)
+        Label43u = tk.Label(root, text=" s ").grid(row=53,column=3)
         
-        Label43 = Label(root, text="Sin Period:").grid(row=54,column=0)
-        eSinT = Entry(root, width=7)
+        Label43 = tk.Label(root, text="Sin Period:").grid(row=54,column=0)
+        eSinT = tk.Entry(root, width=7)
         eSinT.grid(row=54, column=1)
         eSinT.insert(0, "0.7")
-        eSinTMod = Entry(root, width=7)
+        eSinTMod = tk.Entry(root, width=7)
         eSinTMod.grid(row=54, column=2)
         eSinTMod.insert(0, "0.7")
-        Label43u = Label(root, text=" s ").grid(row=54,column=3)
+        Label43u = tk.Label(root, text=" s ").grid(row=54,column=3)
 
         #Results==========================================================================================================================================
         def RollSimMain():
 
-            BasicParamWindow = Tk()
+            BasicParamWindow = tk.Tk()
             BasicParamWindow.title('Basic Suspension Parameters')
 
             #Make STRs + FLOATs from all inputs
@@ -554,97 +546,97 @@ if __name__ == '__main__':
             #MAKE ALL "STEADY STATE" CALCULATIONS--------------------------------------------------------------------------------
 
             #Used For Roll Behavior
-            SprungWeightDistResult =  WeightDistCalc(FLSMass, FRSMass, RLSMass, RRSMass, FLSMassMod, FRSMassMod, RLSMassMod, RRSMassMod)
+            SprungWeightDistResult =  RSF_weight_dist(FLSMass, FRSMass, RLSMass, RRSMass, FLSMassMod, FRSMassMod, RLSMassMod, RRSMassMod)
             FSprungWeightDist = SprungWeightDistResult[0]
             FSprungWeightDistMod = SprungWeightDistResult[3]
             TotalSprungMass = SprungWeightDistResult[18]
             TotalSprungMassMod = SprungWeightDistResult[19]
 
             #Used for Weight Distribution for Results
-            WeightDistResult =  WeightDistCalc(FLMass, FRMass, RLMass, RRMass, FLMassMod, FRMassMod, RLMassMod, RRMassMod)
+            WeightDistResult =  RSF_weight_dist(FLMass, FRMass, RLMass, RRMass, FLMassMod, FRMassMod, RLMassMod, RRMassMod)
 
             #FRONT LEFT___________________
 
-            FLWheelRateResult = WheelRateCalc(FSpringRate, FMotionRatioWS, FSpringRateMod, FMotionRatioWSMod)
+            FLWheelRateResult = RSF_wheel_rate(FSpringRate, FMotionRatioWS, FSpringRateMod, FMotionRatioWSMod)
             FLWheelRate = FLWheelRateResult[0]
             FLWheelRateMod = FLWheelRateResult[1]
 
-            FLUndamperRideFrequencyResult = UndampedRideFrequencyCalc(FLWheelRate, FLSMass, FLWheelRateMod, FLSMassMod)
+            FLUndamperRideFrequencyResult = RSF_undamped_ride_freq(FLWheelRate, FLSMass, FLWheelRateMod, FLSMassMod)
 
-            FLDampingRatioSBResult = WheelDampingRatioCalc(FLWheelRate, FLSMass,  FDamperRateSB, FMotionRatioWD,
+            FLDampingRatioSBResult = RSF_corner_damping_ratio(FLWheelRate, FLSMass,  FDamperRateSB, FMotionRatioWD,
                                                     FLWheelRateMod, FLSMassMod,  FDamperRateSBMod, FMotionRatioWDMod)
 
-            FLDampingRatioFBResult = WheelDampingRatioCalc(FLWheelRate, FLSMass,  FDamperRateFB, FMotionRatioWD,
+            FLDampingRatioFBResult = RSF_corner_damping_ratio(FLWheelRate, FLSMass,  FDamperRateFB, FMotionRatioWD,
                                                     FLWheelRateMod, FLSMassMod,  FDamperRateFBMod, FMotionRatioWDMod)
 
-            FLDampingRatioSRResult = WheelDampingRatioCalc(FLWheelRate, FLSMass,  FDamperRateSR, FMotionRatioWD,
+            FLDampingRatioSRResult = RSF_corner_damping_ratio(FLWheelRate, FLSMass,  FDamperRateSR, FMotionRatioWD,
                                                     FLWheelRateMod, FLSMassMod,  FDamperRateSRMod, FMotionRatioWDMod)
 
-            FLDampingRatioFRResult = WheelDampingRatioCalc(FLWheelRate, FLSMass,  FDamperRateFR, FMotionRatioWD,
+            FLDampingRatioFRResult = RSF_corner_damping_ratio(FLWheelRate, FLSMass,  FDamperRateFR, FMotionRatioWD,
                                                     FLWheelRateMod, FLSMassMod,  FDamperRateFRMod, FMotionRatioWDMod)
 
             #FRONT RIGHT___________________
 
-            FRWheelRateResult = WheelRateCalc(FSpringRate,FMotionRatioWS,FSpringRateMod, FMotionRatioWSMod)
+            FRWheelRateResult = RSF_wheel_rate(FSpringRate,FMotionRatioWS,FSpringRateMod, FMotionRatioWSMod)
             FRWheelRate = FRWheelRateResult[0]
             FRWheelRateMod = FRWheelRateResult[1]
 
-            FRUndamperRideFrequencyResult = UndampedRideFrequencyCalc(FRWheelRate, FRSMass, FRWheelRateMod, FRSMassMod)
+            FRUndamperRideFrequencyResult = RSF_undamped_ride_freq(FRWheelRate, FRSMass, FRWheelRateMod, FRSMassMod)
 
-            FRDampingRatioSBResult = WheelDampingRatioCalc(FRWheelRate, FRSMass,  FDamperRateSB, FMotionRatioWD,
+            FRDampingRatioSBResult = RSF_corner_damping_ratio(FRWheelRate, FRSMass,  FDamperRateSB, FMotionRatioWD,
                                                     FRWheelRateMod, FRSMassMod,  FDamperRateSBMod, FMotionRatioWDMod)
 
-            FRDampingRatioFBResult = WheelDampingRatioCalc(FRWheelRate, FRSMass,  FDamperRateFB, FMotionRatioWD,
+            FRDampingRatioFBResult = RSF_corner_damping_ratio(FRWheelRate, FRSMass,  FDamperRateFB, FMotionRatioWD,
                                                     FRWheelRateMod, FRSMassMod,  FDamperRateFBMod, FMotionRatioWDMod)
 
-            FRDampingRatioSRResult = WheelDampingRatioCalc(FRWheelRate, FRSMass,  FDamperRateSR, FMotionRatioWD,
+            FRDampingRatioSRResult = RSF_corner_damping_ratio(FRWheelRate, FRSMass,  FDamperRateSR, FMotionRatioWD,
                                                     FRWheelRateMod, FRSMassMod,  FDamperRateSRMod, FMotionRatioWDMod)
 
-            FRDampingRatioFRResult = WheelDampingRatioCalc(FRWheelRate, FRSMass,  FDamperRateFR, FMotionRatioWD,
+            FRDampingRatioFRResult = RSF_corner_damping_ratio(FRWheelRate, FRSMass,  FDamperRateFR, FMotionRatioWD,
                                                     FRWheelRateMod, FRSMassMod,  FDamperRateFRMod, FMotionRatioWDMod)
 
             #REAR LEFT___________________
 
-            RLWheelRateResult = WheelRateCalc(RSpringRate, RMotionRatioWS, RSpringRateMod, RMotionRatioWSMod)
+            RLWheelRateResult = RSF_wheel_rate(RSpringRate, RMotionRatioWS, RSpringRateMod, RMotionRatioWSMod)
             RLWheelRate = RLWheelRateResult[0]
             RLWheelRateMod = RLWheelRateResult[1]
 
-            RLUndamperRideFrequencyResult = UndampedRideFrequencyCalc(RLWheelRate, RLSMass, RLWheelRateMod, RLSMassMod)
+            RLUndamperRideFrequencyResult = RSF_undamped_ride_freq(RLWheelRate, RLSMass, RLWheelRateMod, RLSMassMod)
 
-            RLDampingRatioSBResult = WheelDampingRatioCalc(RLWheelRate, RLSMass,  RDamperRateSB, RMotionRatioWD,
+            RLDampingRatioSBResult = RSF_corner_damping_ratio(RLWheelRate, RLSMass,  RDamperRateSB, RMotionRatioWD,
                                                     RLWheelRateMod, RLSMassMod,  RDamperRateSBMod, RMotionRatioWDMod)
 
-            RLDampingRatioFBResult = WheelDampingRatioCalc(RLWheelRate, RLSMass,  RDamperRateFB, RMotionRatioWD,
+            RLDampingRatioFBResult = RSF_corner_damping_ratio(RLWheelRate, RLSMass,  RDamperRateFB, RMotionRatioWD,
                                                     RLWheelRateMod, RLSMassMod,  RDamperRateFBMod, RMotionRatioWDMod)
 
-            RLDampingRatioSRResult = WheelDampingRatioCalc(RLWheelRate, RLSMass,  RDamperRateSR, RMotionRatioWD,
+            RLDampingRatioSRResult = RSF_corner_damping_ratio(RLWheelRate, RLSMass,  RDamperRateSR, RMotionRatioWD,
                                                     RLWheelRateMod, RLSMassMod,  RDamperRateSRMod, RMotionRatioWDMod)
 
-            RLDampingRatioFRResult = WheelDampingRatioCalc(RLWheelRate, RLSMass,  RDamperRateFR, RMotionRatioWD,
+            RLDampingRatioFRResult = RSF_corner_damping_ratio(RLWheelRate, RLSMass,  RDamperRateFR, RMotionRatioWD,
                                                     RLWheelRateMod, RLSMassMod,  RDamperRateFRMod, RMotionRatioWDMod)
 
             #REAR RIGHT___________________
 
-            RRWheelRateResult = WheelRateCalc(RSpringRate,RMotionRatioWS,RSpringRateMod, RMotionRatioWSMod)
+            RRWheelRateResult = RSF_wheel_rate(RSpringRate,RMotionRatioWS,RSpringRateMod, RMotionRatioWSMod)
             RRWheelRate = RRWheelRateResult[0]
             RRWheelRateMod = RRWheelRateResult[1]
 
-            RRUndamperRideFrequencyResult = UndampedRideFrequencyCalc(RRWheelRate, RRSMass, RRWheelRateMod, RRSMassMod)
+            RRUndamperRideFrequencyResult = RSF_undamped_ride_freq(RRWheelRate, RRSMass, RRWheelRateMod, RRSMassMod)
 
-            RRDampingRatioSBResult = WheelDampingRatioCalc(RRWheelRate, RRSMass,  RDamperRateSB, RMotionRatioWD,
+            RRDampingRatioSBResult = RSF_corner_damping_ratio(RRWheelRate, RRSMass,  RDamperRateSB, RMotionRatioWD,
                                                     RRWheelRateMod, RRSMassMod,  RDamperRateSBMod, RMotionRatioWDMod)
 
-            RRDampingRatioFBResult = WheelDampingRatioCalc(RRWheelRate, RRSMass,  RDamperRateFB, RMotionRatioWD,
+            RRDampingRatioFBResult = RSF_corner_damping_ratio(RRWheelRate, RRSMass,  RDamperRateFB, RMotionRatioWD,
                                                     RRWheelRateMod, RRSMassMod,  RDamperRateFBMod, RMotionRatioWDMod)
 
-            RRDampingRatioSRResult = WheelDampingRatioCalc(RRWheelRate, RRSMass,  RDamperRateSR, RMotionRatioWD,
+            RRDampingRatioSRResult = RSF_corner_damping_ratio(RRWheelRate, RRSMass,  RDamperRateSR, RMotionRatioWD,
                                                     RRWheelRateMod, RRSMassMod,  RDamperRateSRMod, RMotionRatioWDMod)
 
-            RRDampingRatioFRResult = WheelDampingRatioCalc(RRWheelRate, RRSMass,  RDamperRateFR, RMotionRatioWD,
+            RRDampingRatioFRResult = RSF_corner_damping_ratio(RRWheelRate, RRSMass,  RDamperRateFR, RMotionRatioWD,
                                                     RRWheelRateMod, RRSMassMod,  RDamperRateFRMod, RMotionRatioWDMod)
 
             #STEADY STATE ROLL OUTPUTS________________________
-            SSRO = SteadyStateRollOutputs(FSprungWeightDist, CMHeight, FRCHeight, RRCHeight,
+            SSRO = RSF_steady_state(FSprungWeightDist, CMHeight, FRCHeight, RRCHeight,
                                 FRWheelRate, RRWheelRate, TotalSprungMass, FLUMass+FRUMass, RLUMass+RRUMass, Gforce, TWf, TWr,
                                 ARBRateF, ARBRateR, FMotionRatioWS, RMotionRatioWS, FMotionRatioWD, RMotionRatioWD,
                                 FAeroLoad, RAeroLoad, RollInertia,
@@ -653,7 +645,7 @@ if __name__ == '__main__':
                                 TireDF, TireDR, TireKF, TireKR 
                                     )
 
-            SSROMod = SteadyStateRollOutputs(FSprungWeightDistMod, CMHeightMod, FRCHeightMod, RRCHeightMod,
+            SSROMod = RSF_steady_state(FSprungWeightDistMod, CMHeightMod, FRCHeightMod, RRCHeightMod,
                                 FRWheelRateMod, RRWheelRateMod, TotalSprungMassMod, FLUMassMod+FRUMassMod, RLUMassMod+RRUMassMod, GforceMod, TWfMod, TWrMod,
                                 ARBRateFMod, ARBRateRMod, FMotionRatioWSMod, RMotionRatioWSMod, FMotionRatioWDMod, RMotionRatioWDMod,
                                 FAeroLoadMod, RAeroLoadMod, RollInertiaMod,
@@ -664,181 +656,181 @@ if __name__ == '__main__':
 
             #Display Results___________________________________________________________________________________________________
 
-            SSGSign = Label(BasicParamWindow, text='_____STEADY STATE CORNERING_____').grid(row=71, column=0)
-            SSGSign2 = Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=71, column=1)
+            SSGSign = tk.Label(BasicParamWindow, text='_____STEADY STATE CORNERING_____').grid(row=71, column=0)
+            SSGSign2 = tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=71, column=1)
 
 
-            Result72 = Label(BasicParamWindow, text = ' Front Weight Transfer: ').grid(row=72, column=0)
-            Result72B = Label(BasicParamWindow, text = SSRO[1] + '/ ' + SSROMod[1] + '/ ' + str(round(100*(SSROMod[9]-SSRO[9])/SSRO[9], 1))).grid(row=72, column=1)
-            Result72C = Label(BasicParamWindow, text = '%').grid(row=72, column=2)
-            Result75 = Label(BasicParamWindow, text = ' Rear Weight Transfer: ').grid(row=73, column=0)
-            Result75B = Label(BasicParamWindow, text = SSRO[2] + '/ ' + SSROMod[2] + '/ ' + str(round(100*(SSROMod[10]-SSRO[10])/SSRO[10], 1))).grid(row=73, column=1)
-            Result75C = Label(BasicParamWindow, text = '%').grid(row=73, column=2)
-            Result78 = Label(BasicParamWindow, text = ' F/R Lateral Load Transfer Ratio: ').grid(row=74, column=0)
-            Result78B = Label(BasicParamWindow, text = SSRO[3] + '/ ' + SSROMod[3] + '/ ' + str(round(100*(SSROMod[11]-SSRO[11])/SSRO[11], 1))).grid(row=74, column=1)
-            Result78C = Label(BasicParamWindow, text = '-/-').grid(row=74, column=2)
+            Result72 = tk.Label(BasicParamWindow, text = ' Front Weight Transfer: ').grid(row=72, column=0)
+            Result72B = tk.Label(BasicParamWindow, text = SSRO[1] + '/ ' + SSROMod[1] + '/ ' + str(round(100*(SSROMod[9]-SSRO[9])/SSRO[9], 1))).grid(row=72, column=1)
+            Result72C = tk.Label(BasicParamWindow, text = '%').grid(row=72, column=2)
+            Result75 = tk.Label(BasicParamWindow, text = ' Rear Weight Transfer: ').grid(row=73, column=0)
+            Result75B = tk.Label(BasicParamWindow, text = SSRO[2] + '/ ' + SSROMod[2] + '/ ' + str(round(100*(SSROMod[10]-SSRO[10])/SSRO[10], 1))).grid(row=73, column=1)
+            Result75C = tk.Label(BasicParamWindow, text = '%').grid(row=73, column=2)
+            Result78 = tk.Label(BasicParamWindow, text = ' F/R Lateral Load Transfer Ratio: ').grid(row=74, column=0)
+            Result78B = tk.Label(BasicParamWindow, text = SSRO[3] + '/ ' + SSROMod[3] + '/ ' + str(round(100*(SSROMod[11]-SSRO[11])/SSRO[11], 1))).grid(row=74, column=1)
+            Result78C = tk.Label(BasicParamWindow, text = '-/-').grid(row=74, column=2)
 
-            LabelSpace4 = Label(BasicParamWindow, text='     ').grid(row=75, column=0)
+            LabelSpace4 = tk.Label(BasicParamWindow, text='     ').grid(row=75, column=0)
 
-            Result79 = Label(BasicParamWindow, text = ' Natural Roll Frequency: ').grid(row=76, column=0)
-            Result79B = Label(BasicParamWindow, text = SSRO[17] + '/ ' + SSROMod[17] + '/ ' + str(round(100*(SSROMod[16]-SSRO[16])/SSRO[16], 1))).grid(row=76, column=1)
-            Result79C = Label(BasicParamWindow, text = 'hz').grid(row=76, column=2)
-            Result80 = Label(BasicParamWindow, text = ' Roll Damping Ratio (Slow): ').grid(row=77, column=0)
-            Result80B = Label(BasicParamWindow, text = SSRO[19] + '/ ' + SSROMod[19] + '/ ' + str(round(100*(SSROMod[18]-SSRO[18])/SSRO[18], 1))).grid(row=77, column=1)
-            Result80C = Label(BasicParamWindow, text = 'hz').grid(row=77, column=2)
-            Result81 = Label(BasicParamWindow, text = ' Roll Damping Ratio (Fast): ').grid(row=78, column=0)
-            Result81B = Label(BasicParamWindow, text = SSRO[21] + '/ ' + SSROMod[21] + '/ ' + str(round(100*(SSROMod[20]-SSRO[20])/SSRO[20], 1))).grid(row=78, column=1)
-            Result81C = Label(BasicParamWindow, text = 'hz').grid(row=78, column=2)
-            Result82 = Label(BasicParamWindow, text = ' Damped Roll Frequency (Slow): ').grid(row=79, column=0)
-            Result82B = Label(BasicParamWindow, text = SSRO[23] + '/ ' + SSROMod[23] + '/ ' + str(round(100*(SSROMod[22]-SSRO[22])/SSRO[22], 1))).grid(row=79, column=1)
-            Result82C = Label(BasicParamWindow, text = 'hz').grid(row=79, column=2)
-            Result83 = Label(BasicParamWindow, text = ' Damped Roll Frequency (Fast): ').grid(row=80, column=0)
-            Result83B = Label(BasicParamWindow, text = SSRO[25] + '/ ' + SSROMod[25] + '/ ' + str(round(100*(SSROMod[24]-SSRO[24])/SSRO[24], 1))).grid(row=80, column=1)
-            Result83C = Label(BasicParamWindow, text = 'hz').grid(row=80, column=2)
+            Result79 = tk.Label(BasicParamWindow, text = ' Natural Roll Frequency: ').grid(row=76, column=0)
+            Result79B = tk.Label(BasicParamWindow, text = SSRO[17] + '/ ' + SSROMod[17] + '/ ' + str(round(100*(SSROMod[16]-SSRO[16])/SSRO[16], 1))).grid(row=76, column=1)
+            Result79C = tk.Label(BasicParamWindow, text = 'hz').grid(row=76, column=2)
+            Result80 = tk.Label(BasicParamWindow, text = ' Roll Damping Ratio (Slow): ').grid(row=77, column=0)
+            Result80B = tk.Label(BasicParamWindow, text = SSRO[19] + '/ ' + SSROMod[19] + '/ ' + str(round(100*(SSROMod[18]-SSRO[18])/SSRO[18], 1))).grid(row=77, column=1)
+            Result80C = tk.Label(BasicParamWindow, text = 'hz').grid(row=77, column=2)
+            Result81 = tk.Label(BasicParamWindow, text = ' Roll Damping Ratio (Fast): ').grid(row=78, column=0)
+            Result81B = tk.Label(BasicParamWindow, text = SSRO[21] + '/ ' + SSROMod[21] + '/ ' + str(round(100*(SSROMod[20]-SSRO[20])/SSRO[20], 1))).grid(row=78, column=1)
+            Result81C = tk.Label(BasicParamWindow, text = 'hz').grid(row=78, column=2)
+            Result82 = tk.Label(BasicParamWindow, text = ' Damped Roll Frequency (Slow): ').grid(row=79, column=0)
+            Result82B = tk.Label(BasicParamWindow, text = SSRO[23] + '/ ' + SSROMod[23] + '/ ' + str(round(100*(SSROMod[22]-SSRO[22])/SSRO[22], 1))).grid(row=79, column=1)
+            Result82C = tk.Label(BasicParamWindow, text = 'hz').grid(row=79, column=2)
+            Result83 = tk.Label(BasicParamWindow, text = ' Damped Roll Frequency (Fast): ').grid(row=80, column=0)
+            Result83B = tk.Label(BasicParamWindow, text = SSRO[25] + '/ ' + SSROMod[25] + '/ ' + str(round(100*(SSROMod[24]-SSRO[24])/SSRO[24], 1))).grid(row=80, column=1)
+            Result83C = tk.Label(BasicParamWindow, text = 'hz').grid(row=80, column=2)
 
-            LabelSpace5 = Label(BasicParamWindow, text='     ').grid(row=81, column=0)
+            LabelSpace5 = tk.Label(BasicParamWindow, text='     ').grid(row=81, column=0)
 
-            Result84 = Label(BasicParamWindow, text = ' Roll Angle (About Roll Axis): ').grid(row=82, column=0)
-            Result84B = Label(BasicParamWindow, text = SSRO[0] + '/ ' + SSROMod[0] + '/ ' + str(round(100*(SSROMod[8]-SSRO[8])/SSRO[8], 1))).grid(row=82, column=1)
-            Result84C = Label(BasicParamWindow, text = 'deg').grid(row=82, column=2)
-            Result73 = Label(BasicParamWindow, text = ' Front Spring Defl. from Rest: ').grid(row=83, column=0)
-            Result73B = Label(BasicParamWindow, text = SSRO[4] + '/ ' + SSROMod[4] + '/ ' + str(round(100*(SSROMod[12]-SSRO[12])/SSRO[12], 1))).grid(row=83, column=1)
-            Result73C = Label(BasicParamWindow, text = 'in.').grid(row=83, column=2)
-            Result74 = Label(BasicParamWindow, text = ' Front Damper Defl. from Rest: ').grid(row=84, column=0)
-            Result74B = Label(BasicParamWindow, text = SSRO[6] + '/ ' + SSROMod[6] + '/ ' + str(round(100*(SSROMod[14]-SSRO[14])/SSRO[14], 1))).grid(row=84, column=1)
-            Result74C = Label(BasicParamWindow, text = 'in.').grid(row=84, column=2)
-            Result76 = Label(BasicParamWindow, text = ' Rear Spring Defl. from Rest: ').grid(row=85, column=0)
-            Result76B = Label(BasicParamWindow, text = SSRO[5] + '/ ' + SSROMod[5] + '/ ' + str(round(100*(SSROMod[13]-SSRO[13])/SSRO[13], 1))).grid(row=85, column=1)
-            Result76C = Label(BasicParamWindow, text = 'in.').grid(row=85, column=2)
-            Result77 = Label(BasicParamWindow, text = ' Rear Damper Defl. from Rest: ').grid(row=86, column=0)
-            Result77B = Label(BasicParamWindow, text = SSRO[7] + '/ ' + SSROMod[7] + '/ ' + str(round(100*(SSROMod[15]-SSRO[15])/SSRO[15], 1))).grid(row=86, column=1)
-            Result77C = Label(BasicParamWindow, text = 'in.').grid(row=86, column=2)
+            Result84 = tk.Label(BasicParamWindow, text = ' Roll Angle (About Roll Axis): ').grid(row=82, column=0)
+            Result84B = tk.Label(BasicParamWindow, text = SSRO[0] + '/ ' + SSROMod[0] + '/ ' + str(round(100*(SSROMod[8]-SSRO[8])/SSRO[8], 1))).grid(row=82, column=1)
+            Result84C = tk.Label(BasicParamWindow, text = 'deg').grid(row=82, column=2)
+            Result73 = tk.Label(BasicParamWindow, text = ' Front Spring Defl. from Rest: ').grid(row=83, column=0)
+            Result73B = tk.Label(BasicParamWindow, text = SSRO[4] + '/ ' + SSROMod[4] + '/ ' + str(round(100*(SSROMod[12]-SSRO[12])/SSRO[12], 1))).grid(row=83, column=1)
+            Result73C = tk.Label(BasicParamWindow, text = 'in.').grid(row=83, column=2)
+            Result74 = tk.Label(BasicParamWindow, text = ' Front Damper Defl. from Rest: ').grid(row=84, column=0)
+            Result74B = tk.Label(BasicParamWindow, text = SSRO[6] + '/ ' + SSROMod[6] + '/ ' + str(round(100*(SSROMod[14]-SSRO[14])/SSRO[14], 1))).grid(row=84, column=1)
+            Result74C = tk.Label(BasicParamWindow, text = 'in.').grid(row=84, column=2)
+            Result76 = tk.Label(BasicParamWindow, text = ' Rear Spring Defl. from Rest: ').grid(row=85, column=0)
+            Result76B = tk.Label(BasicParamWindow, text = SSRO[5] + '/ ' + SSROMod[5] + '/ ' + str(round(100*(SSROMod[13]-SSRO[13])/SSRO[13], 1))).grid(row=85, column=1)
+            Result76C = tk.Label(BasicParamWindow, text = 'in.').grid(row=85, column=2)
+            Result77 = tk.Label(BasicParamWindow, text = ' Rear Damper Defl. from Rest: ').grid(row=86, column=0)
+            Result77B = tk.Label(BasicParamWindow, text = SSRO[7] + '/ ' + SSROMod[7] + '/ ' + str(round(100*(SSROMod[15]-SSRO[15])/SSRO[15], 1))).grid(row=86, column=1)
+            Result77C = tk.Label(BasicParamWindow, text = 'in.').grid(row=86, column=2)
 
-            LabelSpace3 = Label(BasicParamWindow, text='     ').grid(row=99, column=0)
+            LabelSpace3 = tk.Label(BasicParamWindow, text='     ').grid(row=99, column=0)
 
-            FLSign = Label(BasicParamWindow, text='_______FL CORNER_______').grid(row=100, column=0)
-            FLSign2 = Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=100, column=1)
-            FRSign = Label(BasicParamWindow, text='_______FR CORNER_______').grid(row=100, column=5)
-            FRSign2 = Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=100, column=6)
+            FLSign = tk.Label(BasicParamWindow, text='_______FL CORNER_______').grid(row=100, column=0)
+            FLSign2 = tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=100, column=1)
+            FRSign = tk.Label(BasicParamWindow, text='_______FR CORNER_______').grid(row=100, column=5)
+            FRSign2 = tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=100, column=6)
 
-            Result1 = Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=101, column=0)
-            Result1B = Label(BasicParamWindow, text = FLWheelRateResult[3] + '/ ' + FLWheelRateResult[4] + '/ ' + FLWheelRateResult[5]).grid(row=101, column=1)
-            Result1C = Label(BasicParamWindow, text = 'lbs/in.').grid(row=101, column=2)
+            Result1 = tk.Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=101, column=0)
+            Result1B = tk.Label(BasicParamWindow, text = FLWheelRateResult[3] + '/ ' + FLWheelRateResult[4] + '/ ' + FLWheelRateResult[5]).grid(row=101, column=1)
+            Result1C = tk.Label(BasicParamWindow, text = 'lbs/in.').grid(row=101, column=2)
 
-            Result2 = Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=102, column=0)
-            Result2B = Label(BasicParamWindow, text = FLUndamperRideFrequencyResult[3] + '/ ' + FLUndamperRideFrequencyResult[4] + '/ ' + FLUndamperRideFrequencyResult[5]).grid(row=102, column=1)
-            Result2C = Label(BasicParamWindow, text = 'hz').grid(row=102, column=2)
+            Result2 = tk.Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=102, column=0)
+            Result2B = tk.Label(BasicParamWindow, text = FLUndamperRideFrequencyResult[3] + '/ ' + FLUndamperRideFrequencyResult[4] + '/ ' + FLUndamperRideFrequencyResult[5]).grid(row=102, column=1)
+            Result2C = tk.Label(BasicParamWindow, text = 'hz').grid(row=102, column=2)
 
-            Result3 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=103, column=0)
-            Result3B = Label(BasicParamWindow, text = FLDampingRatioSBResult[3] + '/ ' + FLDampingRatioSBResult[4] + '/ ' + FLDampingRatioSBResult[5]).grid(row=103, column=1)
-            Result3C = Label(BasicParamWindow, text = '-/-').grid(row=103, column=2)
+            Result3 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=103, column=0)
+            Result3B = tk.Label(BasicParamWindow, text = FLDampingRatioSBResult[3] + '/ ' + FLDampingRatioSBResult[4] + '/ ' + FLDampingRatioSBResult[5]).grid(row=103, column=1)
+            Result3C = tk.Label(BasicParamWindow, text = '-/-').grid(row=103, column=2)
 
-            Result4 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=104, column=0)
-            Result4B = Label(BasicParamWindow, text = FLDampingRatioFBResult[3] + '/ ' + FLDampingRatioFBResult[4] + '/ ' + FLDampingRatioFBResult[5]).grid(row=104, column=1)
-            Result4C = Label(BasicParamWindow, text = '-/-').grid(row=104, column=2)
+            Result4 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=104, column=0)
+            Result4B = tk.Label(BasicParamWindow, text = FLDampingRatioFBResult[3] + '/ ' + FLDampingRatioFBResult[4] + '/ ' + FLDampingRatioFBResult[5]).grid(row=104, column=1)
+            Result4C = tk.Label(BasicParamWindow, text = '-/-').grid(row=104, column=2)
 
-            Result5 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=105, column=0)
-            Result5B = Label(BasicParamWindow, text = FLDampingRatioSRResult[3] + '/ ' + FLDampingRatioSRResult[4] + '/ ' + FLDampingRatioSRResult[5]).grid(row=105, column=1)
-            Result5C = Label(BasicParamWindow, text = '-/-').grid(row=105, column=2)
+            Result5 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=105, column=0)
+            Result5B = tk.Label(BasicParamWindow, text = FLDampingRatioSRResult[3] + '/ ' + FLDampingRatioSRResult[4] + '/ ' + FLDampingRatioSRResult[5]).grid(row=105, column=1)
+            Result5C = tk.Label(BasicParamWindow, text = '-/-').grid(row=105, column=2)
 
-            Result6 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=106, column=0)
-            Result6B = Label(BasicParamWindow, text = FLDampingRatioFRResult[3] + '/ ' + FLDampingRatioFRResult[4] + '/ ' + FLDampingRatioFRResult[5]).grid(row=106, column=1)
-            Result6C = Label(BasicParamWindow, text = '-/-').grid(row=106, column=2)
+            Result6 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=106, column=0)
+            Result6B = tk.Label(BasicParamWindow, text = FLDampingRatioFRResult[3] + '/ ' + FLDampingRatioFRResult[4] + '/ ' + FLDampingRatioFRResult[5]).grid(row=106, column=1)
+            Result6C = tk.Label(BasicParamWindow, text = '-/-').grid(row=106, column=2)
 
-            Result7 = Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=101, column=5)
-            Result7B = Label(BasicParamWindow, text = FRWheelRateResult[3] + '/ ' + FRWheelRateResult[4] + '/ ' + FRWheelRateResult[5]).grid(row=101, column=6)
-            Result7C = Label(BasicParamWindow, text = 'lbs/in.').grid(row=101, column=7)
+            Result7 = tk.Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=101, column=5)
+            Result7B = tk.Label(BasicParamWindow, text = FRWheelRateResult[3] + '/ ' + FRWheelRateResult[4] + '/ ' + FRWheelRateResult[5]).grid(row=101, column=6)
+            Result7C = tk.Label(BasicParamWindow, text = 'lbs/in.').grid(row=101, column=7)
 
-            Result8 = Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=102, column=5)
-            Result8B = Label(BasicParamWindow, text = FRUndamperRideFrequencyResult[3] + '/ ' + FRUndamperRideFrequencyResult[4] + '/ ' + FRUndamperRideFrequencyResult[5]).grid(row=102, column=6)
-            Result8C = Label(BasicParamWindow, text = 'hz').grid(row=102, column=7)
+            Result8 = tk.Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=102, column=5)
+            Result8B = tk.Label(BasicParamWindow, text = FRUndamperRideFrequencyResult[3] + '/ ' + FRUndamperRideFrequencyResult[4] + '/ ' + FRUndamperRideFrequencyResult[5]).grid(row=102, column=6)
+            Result8C = tk.Label(BasicParamWindow, text = 'hz').grid(row=102, column=7)
 
-            Result9 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=103, column=5)
-            Result9B = Label(BasicParamWindow, text = FRDampingRatioSBResult[3] + '/ ' + FRDampingRatioSBResult[4] + '/ ' + FRDampingRatioSBResult[5]).grid(row=103, column=6)
-            Result9C = Label(BasicParamWindow, text = '-/-').grid(row=103, column=7)
+            Result9 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=103, column=5)
+            Result9B = tk.Label(BasicParamWindow, text = FRDampingRatioSBResult[3] + '/ ' + FRDampingRatioSBResult[4] + '/ ' + FRDampingRatioSBResult[5]).grid(row=103, column=6)
+            Result9C = tk.Label(BasicParamWindow, text = '-/-').grid(row=103, column=7)
 
-            Result10 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=104, column=5)
-            Result10B = Label(BasicParamWindow, text = FRDampingRatioFBResult[3] + '/ ' + FRDampingRatioFBResult[4] + '/ ' + FRDampingRatioFBResult[5]).grid(row=104, column=6)
-            Result10C = Label(BasicParamWindow, text = '-/-').grid(row=104, column=7)
+            Result10 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=104, column=5)
+            Result10B = tk.Label(BasicParamWindow, text = FRDampingRatioFBResult[3] + '/ ' + FRDampingRatioFBResult[4] + '/ ' + FRDampingRatioFBResult[5]).grid(row=104, column=6)
+            Result10C = tk.Label(BasicParamWindow, text = '-/-').grid(row=104, column=7)
 
-            Result11 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=105, column=5)
-            Result11B = Label(BasicParamWindow, text = FRDampingRatioSRResult[3] + '/ ' + FRDampingRatioSRResult[4] + '/ ' + FRDampingRatioSRResult[5]).grid(row=105, column=6)
-            Result11C = Label(BasicParamWindow, text = '-/-').grid(row=105, column=7)
+            Result11 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=105, column=5)
+            Result11B = tk.Label(BasicParamWindow, text = FRDampingRatioSRResult[3] + '/ ' + FRDampingRatioSRResult[4] + '/ ' + FRDampingRatioSRResult[5]).grid(row=105, column=6)
+            Result11C = tk.Label(BasicParamWindow, text = '-/-').grid(row=105, column=7)
 
-            Result12 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=106, column=5)
-            Result12B = Label(BasicParamWindow, text = FRDampingRatioFRResult[3] + '/ ' + FRDampingRatioFRResult[4] + '/ ' + FRDampingRatioFRResult[5]).grid(row=106, column=6)
-            Result12C = Label(BasicParamWindow, text = '-/-').grid(row=106, column=7)
+            Result12 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=106, column=5)
+            Result12B = tk.Label(BasicParamWindow, text = FRDampingRatioFRResult[3] + '/ ' + FRDampingRatioFRResult[4] + '/ ' + FRDampingRatioFRResult[5]).grid(row=106, column=6)
+            Result12C = tk.Label(BasicParamWindow, text = '-/-').grid(row=106, column=7)
 
-            LabelSpace = Label(BasicParamWindow, text='     ').grid(row=119, column=0)
+            LabelSpace = tk.Label(BasicParamWindow, text='     ').grid(row=119, column=0)
 
-            FLSign = Label(BasicParamWindow, text='_______RL CORNER_______').grid(row=120, column=0)
-            FLSign2 = Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=120, column=1)
-            FRSign = Label(BasicParamWindow, text='_______RR CORNER_______').grid(row=120, column=5)
-            FRSign2 = Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=120, column=6)
+            FLSign = tk.Label(BasicParamWindow, text='_______RL CORNER_______').grid(row=120, column=0)
+            FLSign2 = tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=120, column=1)
+            FRSign = tk.Label(BasicParamWindow, text='_______RR CORNER_______').grid(row=120, column=5)
+            FRSign2 = tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=120, column=6)
 
-            Result13 = Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=121, column=0)
-            Result13B = Label(BasicParamWindow, text = RLWheelRateResult[3] + '/ ' + RLWheelRateResult[4] + '/ ' + RLWheelRateResult[5]).grid(row=121, column=1)
-            Result13C = Label(BasicParamWindow, text = 'lbs/in.').grid(row=121, column=2)
+            Result13 = tk.Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=121, column=0)
+            Result13B = tk.Label(BasicParamWindow, text = RLWheelRateResult[3] + '/ ' + RLWheelRateResult[4] + '/ ' + RLWheelRateResult[5]).grid(row=121, column=1)
+            Result13C = tk.Label(BasicParamWindow, text = 'lbs/in.').grid(row=121, column=2)
 
-            Result14 = Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=122, column=0)
-            Result14B = Label(BasicParamWindow, text = RLUndamperRideFrequencyResult[3] + '/ ' + RLUndamperRideFrequencyResult[4] + '/ ' + RLUndamperRideFrequencyResult[5]).grid(row=122, column=1)
-            Result14C = Label(BasicParamWindow, text = 'hz').grid(row=122, column=2)
+            Result14 = tk.Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=122, column=0)
+            Result14B = tk.Label(BasicParamWindow, text = RLUndamperRideFrequencyResult[3] + '/ ' + RLUndamperRideFrequencyResult[4] + '/ ' + RLUndamperRideFrequencyResult[5]).grid(row=122, column=1)
+            Result14C = tk.Label(BasicParamWindow, text = 'hz').grid(row=122, column=2)
 
-            Result15 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=123, column=0)
-            Result15B = Label(BasicParamWindow, text = RLDampingRatioSBResult[3] + '/ ' + RLDampingRatioSBResult[4] + '/ ' + RLDampingRatioSBResult[5]).grid(row=123, column=1)
-            Result15C = Label(BasicParamWindow, text = '-/-').grid(row=123, column=2)
+            Result15 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=123, column=0)
+            Result15B = tk.Label(BasicParamWindow, text = RLDampingRatioSBResult[3] + '/ ' + RLDampingRatioSBResult[4] + '/ ' + RLDampingRatioSBResult[5]).grid(row=123, column=1)
+            Result15C = tk.Label(BasicParamWindow, text = '-/-').grid(row=123, column=2)
 
-            Result16 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=124, column=0)
-            Result16B = Label(BasicParamWindow, text = RLDampingRatioFBResult[3] + '/ ' + RLDampingRatioFBResult[4] + '/ ' + RLDampingRatioFBResult[5]).grid(row=124, column=1)
-            Result16C = Label(BasicParamWindow, text = '-/-').grid(row=124, column=2)
+            Result16 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=124, column=0)
+            Result16B = tk.Label(BasicParamWindow, text = RLDampingRatioFBResult[3] + '/ ' + RLDampingRatioFBResult[4] + '/ ' + RLDampingRatioFBResult[5]).grid(row=124, column=1)
+            Result16C = tk.Label(BasicParamWindow, text = '-/-').grid(row=124, column=2)
 
-            Result17 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=125, column=0)
-            Result17B = Label(BasicParamWindow, text = RLDampingRatioSRResult[3] + '/ ' + RLDampingRatioSRResult[4] + '/ ' + RLDampingRatioSRResult[5]).grid(row=125, column=1)
-            Result17C = Label(BasicParamWindow, text = '-/-').grid(row=125, column=2)
+            Result17 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=125, column=0)
+            Result17B = tk.Label(BasicParamWindow, text = RLDampingRatioSRResult[3] + '/ ' + RLDampingRatioSRResult[4] + '/ ' + RLDampingRatioSRResult[5]).grid(row=125, column=1)
+            Result17C = tk.Label(BasicParamWindow, text = '-/-').grid(row=125, column=2)
 
-            Result18 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=126, column=0)
-            Result18B = Label(BasicParamWindow, text = RLDampingRatioFRResult[3] + '/ ' + RLDampingRatioFRResult[4] + '/ ' + RLDampingRatioFRResult[5]).grid(row=126, column=1)
-            Result18C = Label(BasicParamWindow, text = '-/-').grid(row=126, column=2)
+            Result18 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=126, column=0)
+            Result18B = tk.Label(BasicParamWindow, text = RLDampingRatioFRResult[3] + '/ ' + RLDampingRatioFRResult[4] + '/ ' + RLDampingRatioFRResult[5]).grid(row=126, column=1)
+            Result18C = tk.Label(BasicParamWindow, text = '-/-').grid(row=126, column=2)
 
-            Result27 = Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=121, column=5)
-            Result27B = Label(BasicParamWindow, text = RRWheelRateResult[3] + '/ ' + RRWheelRateResult[4] + '/ ' + RRWheelRateResult[5]).grid(row=121, column=6)
-            Result27C = Label(BasicParamWindow, text = 'lbs/in.').grid(row=121, column=7)
+            Result27 = tk.Label(BasicParamWindow, text = ' Wheel Rate: ').grid(row=121, column=5)
+            Result27B = tk.Label(BasicParamWindow, text = RRWheelRateResult[3] + '/ ' + RRWheelRateResult[4] + '/ ' + RRWheelRateResult[5]).grid(row=121, column=6)
+            Result27C = tk.Label(BasicParamWindow, text = 'lbs/in.').grid(row=121, column=7)
 
-            Result28 = Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=122, column=5)
-            Result28B = Label(BasicParamWindow, text = RRUndamperRideFrequencyResult[3] + '/ ' + RRUndamperRideFrequencyResult[4] + '/ ' + RRUndamperRideFrequencyResult[5]).grid(row=122, column=6)
-            Result28C = Label(BasicParamWindow, text = 'hz').grid(row=122, column=7)
+            Result28 = tk.Label(BasicParamWindow, text = ' Undamped Ride Frequency: ').grid(row=122, column=5)
+            Result28B = tk.Label(BasicParamWindow, text = RRUndamperRideFrequencyResult[3] + '/ ' + RRUndamperRideFrequencyResult[4] + '/ ' + RRUndamperRideFrequencyResult[5]).grid(row=122, column=6)
+            Result28C = tk.Label(BasicParamWindow, text = 'hz').grid(row=122, column=7)
 
-            Result29 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=123, column=5)
-            Result29B = Label(BasicParamWindow, text = RRDampingRatioSBResult[3] + '/ ' + RRDampingRatioSBResult[4] + '/ ' + RRDampingRatioSBResult[5]).grid(row=123, column=6)
-            Result29C = Label(BasicParamWindow, text = '-/-').grid(row=123, column=7)
+            Result29 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Bump: ').grid(row=123, column=5)
+            Result29B = tk.Label(BasicParamWindow, text = RRDampingRatioSBResult[3] + '/ ' + RRDampingRatioSBResult[4] + '/ ' + RRDampingRatioSBResult[5]).grid(row=123, column=6)
+            Result29C = tk.Label(BasicParamWindow, text = '-/-').grid(row=123, column=7)
 
-            Result30 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=124, column=5)
-            Result30B = Label(BasicParamWindow, text = RRDampingRatioFBResult[3] + '/ ' + RRDampingRatioFBResult[4] + '/ ' + RRDampingRatioFBResult[5]).grid(row=124, column=6)
-            Result30C = Label(BasicParamWindow, text = '-/-').grid(row=124, column=7)
+            Result30 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Bump: ').grid(row=124, column=5)
+            Result30B = tk.Label(BasicParamWindow, text = RRDampingRatioFBResult[3] + '/ ' + RRDampingRatioFBResult[4] + '/ ' + RRDampingRatioFBResult[5]).grid(row=124, column=6)
+            Result30C = tk.Label(BasicParamWindow, text = '-/-').grid(row=124, column=7)
 
-            Result31 = Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=125, column=5)
-            Result31B = Label(BasicParamWindow, text = RRDampingRatioSRResult[3] + '/ ' + RRDampingRatioSRResult[4] + '/ ' + RRDampingRatioSRResult[5]).grid(row=125, column=6)
-            Result31C = Label(BasicParamWindow, text = '-/-').grid(row=125, column=7)
+            Result31 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Slow Rebound: ').grid(row=125, column=5)
+            Result31B = tk.Label(BasicParamWindow, text = RRDampingRatioSRResult[3] + '/ ' + RRDampingRatioSRResult[4] + '/ ' + RRDampingRatioSRResult[5]).grid(row=125, column=6)
+            Result31C = tk.Label(BasicParamWindow, text = '-/-').grid(row=125, column=7)
 
-            Result32 = Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=126, column=5)
-            Result32B = Label(BasicParamWindow, text = RRDampingRatioFRResult[3] + '/ ' + RRDampingRatioFRResult[4] + '/ ' + RRDampingRatioFRResult[5]).grid(row=126, column=6)
-            Result32C = Label(BasicParamWindow, text = '-/-').grid(row=126, column=7)
+            Result32 = tk.Label(BasicParamWindow, text = ' Damping Ratio, Fast Rebound: ').grid(row=126, column=5)
+            Result32B = tk.Label(BasicParamWindow, text = RRDampingRatioFRResult[3] + '/ ' + RRDampingRatioFRResult[4] + '/ ' + RRDampingRatioFRResult[5]).grid(row=126, column=6)
+            Result32C = tk.Label(BasicParamWindow, text = '-/-').grid(row=126, column=7)
 
-            LabelSpace = Label(BasicParamWindow, text='     ').grid(row=139, column=0)
-            MassesSign = Label(BasicParamWindow, text='_______WEIGHT DIST._______').grid(row=140, column=0)
-            MassesSign2 = Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=140, column=1)
+            LabelSpace = tk.Label(BasicParamWindow, text='     ').grid(row=139, column=0)
+            MassesSign = tk.Label(BasicParamWindow, text='_______WEIGHT DIST._______').grid(row=140, column=0)
+            MassesSign2 = tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=140, column=1)
 
-            Result34 = Label(BasicParamWindow, text = ' Front Weight: ').grid(row=141, column=0)
-            Result34B = Label(BasicParamWindow, text = WeightDistResult[9] + '/ ' + WeightDistResult[12] + '/ ' + WeightDistResult[15]).grid(row=141, column=1)
-            Result34C = Label(BasicParamWindow, text = '%').grid(row=141, column=2)
+            Result34 = tk.Label(BasicParamWindow, text = ' Front Weight: ').grid(row=141, column=0)
+            Result34B = tk.Label(BasicParamWindow, text = WeightDistResult[9] + '/ ' + WeightDistResult[12] + '/ ' + WeightDistResult[15]).grid(row=141, column=1)
+            Result34C = tk.Label(BasicParamWindow, text = '%').grid(row=141, column=2)
 
-            Result35 = Label(BasicParamWindow, text = ' Left Weight: ').grid(row=142, column=0)
-            Result35B = Label(BasicParamWindow, text = WeightDistResult[10] + '/ ' + WeightDistResult[13] + '/ ' + WeightDistResult[16]).grid(row=142, column=1)
-            Result35C = Label(BasicParamWindow, text = '%').grid(row=142, column=2)
+            Result35 = tk.Label(BasicParamWindow, text = ' Left Weight: ').grid(row=142, column=0)
+            Result35B = tk.Label(BasicParamWindow, text = WeightDistResult[10] + '/ ' + WeightDistResult[13] + '/ ' + WeightDistResult[16]).grid(row=142, column=1)
+            Result35C = tk.Label(BasicParamWindow, text = '%').grid(row=142, column=2)
 
-            Result36 = Label(BasicParamWindow, text = ' FL+RR Cross-Weight: ').grid(row=143, column=0)
-            Result36B = Label(BasicParamWindow, text = WeightDistResult[11] + '/ ' + WeightDistResult[14] + '/ ' + WeightDistResult[17]).grid(row=143, column=1)
-            Result36C = Label(BasicParamWindow, text = '%').grid(row=143, column=2)
+            Result36 = tk.Label(BasicParamWindow, text = ' FL+RR Cross-Weight: ').grid(row=143, column=0)
+            Result36B = tk.Label(BasicParamWindow, text = WeightDistResult[11] + '/ ' + WeightDistResult[14] + '/ ' + WeightDistResult[17]).grid(row=143, column=1)
+            Result36C = tk.Label(BasicParamWindow, text = '%').grid(row=143, column=2)
 
 
             BasicParamWindow.mainloop()
@@ -846,7 +838,7 @@ if __name__ == '__main__':
         #DAMPER PLOTS==========================================================================================================
         def DamperPlots():
 
-            DamperWindow = Tk()
+            DamperWindow = tk.Tk()
             DamperWindow.title('Damper Plots (Base, Mod)')
             fig = Figure()
 
@@ -929,7 +921,7 @@ if __name__ == '__main__':
         #STEP RESPONSE WINDOW________________________________________________________________________________________________
         def Resp3(f_type):
 
-            StepWin = Tk()
+            StepWin = tk.Tk()
             StepWin.title('Roll Step Response, Lateral G (Base, Mod)')
             fig = Figure()
 
@@ -1042,21 +1034,21 @@ if __name__ == '__main__':
             p = float(eSinT.get())
             pMod = float(eSinTMod.get())
 
-            FRWheelRateResult = WheelRateCalc(FSpringRate,FMotionRatioWS,FSpringRateMod, FMotionRatioWSMod)
+            FRWheelRateResult = RSF_wheel_rate(FSpringRate,FMotionRatioWS,FSpringRateMod, FMotionRatioWSMod)
             FRWheelRate = FRWheelRateResult[0]
             FRWheelRateMod = FRWheelRateResult[1]
 
-            RRWheelRateResult = WheelRateCalc(RSpringRate,RMotionRatioWS,RSpringRateMod, RMotionRatioWSMod)
+            RRWheelRateResult = RSF_wheel_rate(RSpringRate,RMotionRatioWS,RSpringRateMod, RMotionRatioWSMod)
             RRWheelRate = RRWheelRateResult[0]
             RRWheelRateMod = RRWheelRateResult[1]
 
-            SprungWeightDistResult =  WeightDistCalc(FLSMass, FRSMass, RLSMass, RRSMass, FLSMassMod, FRSMassMod, RLSMassMod, RRSMassMod)
+            SprungWeightDistResult =  RSF_weight_dist(FLSMass, FRSMass, RLSMass, RRSMass, FLSMassMod, FRSMassMod, RLSMassMod, RRSMassMod)
             FSprungWeightDist = SprungWeightDistResult[0]
             FSprungWeightDistMod = SprungWeightDistResult[3]
             TotalSprungMass = SprungWeightDistResult[18]
             TotalSprungMassMod = SprungWeightDistResult[19]
 
-            SSRO = SteadyStateRollOutputs(FSprungWeightDist, CMHeight, FRCHeight, RRCHeight,
+            SSRO = RSF_steady_state(FSprungWeightDist, CMHeight, FRCHeight, RRCHeight,
                                 FRWheelRate, RRWheelRate, TotalSprungMass, FLUMass+FRUMass, RLUMass+RRUMass, Gforce, TWf, TWr,
                                 ARBRateF, ARBRateR, FMotionRatioWS, RMotionRatioWS, FMotionRatioWD, RMotionRatioWD,
                                 FAeroLoad, RAeroLoad, RollInertia,
@@ -1065,7 +1057,7 @@ if __name__ == '__main__':
                                 TireDF, TireDR, TireKF, TireKR 
                                     )
 
-            SSROMod = SteadyStateRollOutputs(FSprungWeightDistMod, CMHeightMod, FRCHeightMod, RRCHeightMod,
+            SSROMod = RSF_steady_state(FSprungWeightDistMod, CMHeightMod, FRCHeightMod, RRCHeightMod,
                                 FRWheelRateMod, RRWheelRateMod, TotalSprungMassMod, FLUMassMod+FRUMassMod, RLUMassMod+RRUMassMod, GforceMod, TWfMod, TWrMod,
                                 ARBRateFMod, ARBRateRMod, FMotionRatioWSMod, RMotionRatioWSMod, FMotionRatioWDMod, RMotionRatioWDMod,
                                 FAeroLoadMod, RAeroLoadMod, RollInertiaMod,
@@ -1101,7 +1093,7 @@ if __name__ == '__main__':
                 F_mod[start:n] = GforceMod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
             
             #BIG TODO: we need to under stand if we're feeding in at-damper damper rates, or at-wheel damper rates.
-            stepResults = TimeResponseV(TWf, TWr,
+            stepResults = RSF_transient_response_V(TWf, TWr,
                         FMotionRatioWD, RMotionRatioWD, FMotionRatioWS, RMotionRatioWS,
                         FDamperRateSB, RDamperRateSB, FDamperRateSR, RDamperRateSR,
                         FDamperRateFB, RDamperRateFB, FDamperRateFR, RDamperRateFR,
@@ -1110,7 +1102,7 @@ if __name__ == '__main__':
                         FLSMass, FRSMass, RLSMass, RRSMass, FLUMass, FRUMass, RLUMass, RRUMass, RollInertia,
                         TireKF, TireKR, TireDF, TireDR, CMHeight, FRCHeight, RRCHeight, F, s)
 
-            stepResultsMod = TimeResponseV(TWfMod, TWrMod,
+            stepResultsMod = RSF_transient_response_V(TWfMod, TWrMod,
                         FMotionRatioWDMod, RMotionRatioWDMod, FMotionRatioWSMod, RMotionRatioWSMod,
                         FDamperRateSBMod, RDamperRateSBMod, FDamperRateSRMod, RDamperRateSRMod,
                         FDamperRateFBMod, RDamperRateFBMod, FDamperRateFRMod, RDamperRateFRMod,
@@ -1235,36 +1227,36 @@ if __name__ == '__main__':
             StepWin.mainloop()
 
         #BUTTONS=================================================================================================================
-        LabelM = Label(root, text='     ')
+        LabelM = tk.Label(root, text='     ')
         LabelM.grid(row=94, column=4)
 
-        DamperPlotButton = Button(root, fg='blue', text = "User Guide", width=16)
+        DamperPlotButton = tk.Button(root, fg='blue', text = "User Guide", width=16)
         DamperPlotButton.grid(row=131, column=0)
 
-        DamperPlotButton = Button(root, fg='blue', command = DamperPlots , text = "Damper Plots", width=16)
+        DamperPlotButton = tk.Button(root, fg='blue', command = DamperPlots , text = "Damper Plots", width=16)
         DamperPlotButton.grid(row=132, column=0)
 
-        CalculateButton = Button(root, text='Basic Parameters', command=RollSimMain, fg='blue', width=16)
+        CalculateButton = tk.Button(root, text='Basic Parameters', command=RollSimMain, fg='blue', width=16)
         CalculateButton.grid(row=133, column=0)
 
-        DamperPlotButton = Button(root, fg='blue', text = "Roll Response (Step)", command = lambda: Resp3(1), width=16)
+        DamperPlotButton = tk.Button(root, fg='blue', text = "Roll Response (Step)", command = lambda: Resp3(1), width=16)
         DamperPlotButton.grid(row=134, column=0)
 
-        DamperPlotButton = Button(root, fg='blue', text = "Roll Response (Ramp)", command = lambda: Resp3(2), width=16)
+        DamperPlotButton = tk.Button(root, fg='blue', text = "Roll Response (Ramp)", command = lambda: Resp3(2), width=16)
         DamperPlotButton.grid(row=135, column=0)
         
-        DamperPlotButton = Button(root, fg='blue', text = "Roll Response (Sin)", command = lambda: Resp3(3), width=16)
+        DamperPlotButton = tk.Button(root, fg='blue', text = "Roll Response (Sin)", command = lambda: Resp3(3), width=16)
         DamperPlotButton.grid(row=136, column=0)
 
-        LabelM = Label(root, text='     ').grid(row=137, column=0)
+        LabelM = tk.Label(root, text='     ').grid(row=137, column=0)
         
         root.mainloop()
 
     def S():
-        safetyWarning = Tk()
+        safetyWarning = tk.Tk()
         safetyWarning.title('Safety Warning')
         
-        Label3 = Label(safetyWarning, wraplength=400, justify="left",
+        Label3 = tk.Label(safetyWarning, wraplength=400, justify="left",
                 text="""
         Do not apply changes to real-world vehicles based solely on Roll.Sim results. Doing so can result in damage to property, bodily injury, or death.
                 
@@ -1294,10 +1286,10 @@ if __name__ == '__main__':
         safetyWarning.mainloop
 
     def LL():
-        LL = Tk()
+        LL = tk.Tk()
         LL.title('Release of Liability')
         
-        Label3 = Label(LL, wraplength=400, justify="left",
+        Label3 = tk.Label(LL, wraplength=400, justify="left",
                 text="""
         TERMS AND CONDITIONS
         
@@ -1323,22 +1315,22 @@ if __name__ == '__main__':
         
         LL.mainloop
         
-    SButton = Button(safety, command=S, text = """Safety Warning""", width=16)
+    SButton = tk.Button(safety, command=S, text = """Safety Warning""", width=16)
     SButton.grid(row=5, column=0)
 
-    LLButton = Button(safety, command=LL, text = """Release of Liability""", width=16)
+    LLButton = tk.Button(safety, command=LL, text = """Release of Liability""", width=16)
     LLButton.grid(row=7, column=0)
 
-    Label3 = Label(safety, wraplength=400, justify="center",
+    Label3 = tk.Label(safety, wraplength=400, justify="center",
                 text=""" """).grid(row=8, column=0)
 
-    Label3 = Label(safety, wraplength=400, justify="center",
+    Label3 = tk.Label(safety, wraplength=400, justify="center",
                 text="""By clicking the button below and continuing to Roll.Sim, you, the user, certify that you have carefully read, understood, and agree to the Release of Liability Statement and Safety Warning of your own free will.""").grid(row=9, column=0)
 
-    Label3 = Label(safety, wraplength=400, justify="center",
+    Label3 = tk.Label(safety, wraplength=400, justify="center",
                 text=""" """).grid(row=12, column=0)
 
-    HomeButton = Button(safety, command=Home, wraplength=250, fg='white', bg='red', text = """I have read, understand, and agree to the safety warning and release of liability above.""")
+    HomeButton = tk.Button(safety, command=Home, wraplength=250, fg='white', bg='red', text = """I have read, understand, and agree to the safety warning and release of liability above.""")
     HomeButton.grid(row=11, column=0)
 
     safety.mainloop()

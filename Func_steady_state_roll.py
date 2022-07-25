@@ -1,6 +1,6 @@
 import math
 
-def SteadyStateRollOutputs(fWeightDist, cmHeight, frcHeight, rrcHeight,
+def RSF_steady_state(fWeightDist, cmHeight, frcHeight, rrcHeight,
                            fWheelRate, rWheelRate, sprungMass, fUnsprungMass, rUnsprungMass, Gforce, TWf, TWr, #unsprung input added
                            ARBRateF, ARBRateR, FMotionRatioWS, RMotionRatioWS, FMotionRatioDS, RMotionRatioDS,
                            aeroLoadF, aeroLoadR,

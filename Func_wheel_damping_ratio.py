@@ -1,7 +1,7 @@
 from math import sqrt
 
 #NEEDS SOME CONVERSION USING DAMPER:WHEEL MR. NEEDS VALIDATION
-def WheelDampingRatioCalc(WheelRate, SprungMass, DamperRate, WDMR, WheelRateMod, SprungMassMod, DamperRateMod, WDMRMod):
+def RSF_corner_damping_ratio(WheelRate, SprungMass, DamperRate, WDMR, WheelRateMod, SprungMassMod, DamperRateMod, WDMRMod):
     WheelRateMet = WheelRate/0.005859
     SprungMassMet = SprungMass*0.453592
     CriticalDampingRate = 2*sqrt(WheelRateMet*SprungMassMet)
