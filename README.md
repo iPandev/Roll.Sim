@@ -1,5 +1,5 @@
 # Roll.Sim
-Hello! Thank you for visiting Roll.Sim, a chassis response simulator solving with multi-body physics and 4th-order Runge-Kutta methods. Roll.Sim is designed to be more lightweight and inexpensive than professional chassis simulation software, while still being far more detailed and descriptive than traditional grassroots motorsports tuning tools. Please note that Roll.Sim is currently published without any license, and is for viewing only, with no rights granted for public use, distribution, or modification. 
+Hello! Thank you for visiting Roll.Sim, a chassis response simulator solving with multi-body physics and 4th-order Runge-Kutta methods. Roll.Sim is designed to be more lightweight and inexpensive than professional chassis simulation software, while still being far more detailed and descriptive than traditional grassroots motorsports tuning tools. Please note that Roll.Sim is, for now, published without any license, and is for viewing only, with no rights granted for public use, distribution, or modification. 
 
 ## Safety
 For your own safety, DO NOT use Roll.Sim code on real-world vehicles as it is still highly experimental.
