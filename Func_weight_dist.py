@@ -1,4 +1,4 @@
-def WeightDistCalc(fl, fr, rl, rr, flMod, frMod, rlMod, rrMod):
+def RSF_weight_dist(fl, fr, rl, rr, flMod, frMod, rlMod, rrMod):
     total = fl+fr+rl+rr
     frontDist = 100*(fl+fr)/total
     leftDist = 100*(fl+rl)/total

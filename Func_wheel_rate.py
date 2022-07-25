@@ -1,6 +1,6 @@
 #This function wis valid for both spring or damper rates. Therefore, the variable name "spring rate" is changed to the more general "rate."
 
-def WheelRateCalc(Rate, MotionRatioWS, RateMod, MotionRatioWSMod):
+def RSF_wheel_rate(Rate, MotionRatioWS, RateMod, MotionRatioWSMod):
     
     WheelRate = Rate/(MotionRatioWS**2)
     WheelRateMod = RateMod/(MotionRatioWSMod**2)
