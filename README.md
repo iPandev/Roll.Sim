@@ -1,5 +1,7 @@
 # Roll.Sim
-![main](https://github.com/iPandev/Roll.Sim/blob/main/.github/workflows/pytest_windows.yml/badge.svg)
+
+![main](https://github.com/iPandev/Roll.Sim/blob/main/workflows/pytest_windows.yml/badge.svg)
+
 Hello! Thank you for visiting Roll.Sim, a chassis response simulator solving with multi-body physics and 4th-order Runge-Kutta methods. Roll.Sim is designed to be more lightweight and inexpensive than professional chassis simulation software, while still being far more detailed and descriptive than traditional grassroots motorsports tuning tools. Please note that Roll.Sim is, for now, published without any license, and is for viewing only, with no rights granted for public use, distribution, or modification. 
 
 ## Safety
