@@ -1,11 +1,22 @@
 import numpy as np
 import math
-from Func_virtual_track_conversion import *
+from Func_virtual_track_conversion import RSF_virtual_track
+from Func_update_damper_domain import RSF_update_damper_domain
 
-def RSF_transient_response_VI(F, s):
+#can we perform conversions in the import statement? This might be cleanest.
+def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
+    tw_f, tw_r, Ks_f, Ks_r, Karb_f, Karb_r, Csb_f, Csr_f, Cfb_f, Cfr_f, Csb_r, Csr_r, Cfb_r, Cfr_r, #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) spring rates, damper rates(N/(m/s))
+    bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
+    fls, frs, rls, rrs, flu, fru, rlu, rru, rotatingInertia, #masses (kg) and rotating inertia (kg*m**2)
+    cg_height, rc_height_f, rc_height_r, tire_diam_f, tire_diam_r #suspension geometries (m)
+    ):
 
-    n=len(F)
+    #Define timing array, dt for loop
+    n=len(force_function)
+    t = np.linspace(-0.1, seconds, num=n)
+    dt = t[1]-t[0]
 
+    #Initialize variable arrays, these will be the returned values.
     rollAngle = np.zeros(n)
     wheelDispF = np.zeros(n)
     wheelDispR = np.zeros(n)
@@ -28,13 +39,86 @@ def RSF_transient_response_VI(F, s):
     frontLLT = np.zeros(n)
     rearLLT = np.zeros(n)
     LLTR = np.zeros(n)
+    
+    #Other misc. variables
+    rc_height_CG = rc_height_f+((fls+frs)/(frs+fls+rls+rrs))*(rc_height_r-rc_height_f)
 
-    i=0
-    t = np.linspace(-0.1, s, num=n)
-    tNow = t[i]
-    tNext = t[i+1]
-    dt = tNext-tNow
-    tHalfNext = tNow+dt/2
+    #Define virtual track, wheel rates, and damper rates.
+    virtual_vars = RSF_virtual_track(tw_f, tw_r, Ks_f, Ks_r, Karb_f, Karb_r, Csb_f, Csr_f, Cfb_f, Cfr_f, Csb_r, Csr_r, Cfb_r, Cfr_r)
+
+    tw_v = virtual_vars[0]
+    Ks_f_v = virtual_vars[1]
+    Ks_r_v = virtual_vars[2]
+    Karb_f_v = virtual_vars[3]
+    Karb_r_v = virtual_vars[4]
+    Csb_f_v = virtual_vars[5]
+    Csr_f_v = virtual_vars[6]
+    Cfb_f_v = virtual_vars[7]
+    Cfr_f_v = virtual_vars[8]
+    Csb_r_v = virtual_vars[9]
+    Csr_r_v = virtual_vars[10]
+    Cfb_r_v = virtual_vars[11]
+    Cfr_r_v = virtual_vars[12]
+
+    #Initialize ODE variables. Roll.Sim always initializes the vehcile body at rest.
+    A_r = 0 #m, chassis displacement right
+    A_l = 0 #m, chassis displacement left
+    A_r_d = 0 #m/s, chassis displacement right, 1st derivative
+    A_l_d = 0 #m/s, chassis displacement left, 1st derivative
+    A_r_dd = 0 #m/(s**2), chassis displacement right, 2nd derivative
+    A_l_dd = 0 #m/(s**2), chassis displacement left, 2nd derivative
+    B_fr = 0 #m, tire displacement front-right
+    B_fl = 0 #m, tire displacement front-left
+    B_fr_d = 0 #m/s, tire displacement front-right, 1st derivative
+    B_fl_d = 0 #m/s, tire displacement front-left, 1st derivative
+    B_fr_dd = 0 #m/(s**2), tire displacement front-right, 2nd derivative
+    B_fl_dd = 0 #m/(s**2), tire displacement front-left, 2nd derivative
+    B_rr = 0 #m, tire displacement rear-right
+    B_rl = 0 #m, tire displacement rear-left
+    B_rr_d = 0 #m/s, tire displacement rear-right, 1st derivative
+    B_rl_d = 0 #m/s, tire displacement rear-left, 1st derivative
+    B_rr_dd = 0 #m/(s**2), tire displacement rear-right, 2nd derivative
+    B_rl_dd = 0 #m/(s**2), tire displacement rear-left, 2nd derivative
+
+    #Begin Loop
+    for i, f in enumerate(force_function):
+        print(i, f)
+
+        #Function to assign correct damper value to C_xx based on Axx-Bxx
+        iteration_damper_values = RSF_update_damper_domain(Csb_f_v, Csr_f_v, Cfb_f_v, Cfr_f_v, Csb_r_v, Csr_r_v, Cfb_r_v, Cfr_r_v, #damper rates (N/(m/s))
+            bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
+            A_r_d, A_l_d, B_fr_d, B_fl_d, B_rr_d, B_rl_d)
+        C_fr = iteration_damper_values[0]
+        C_fl = iteration_damper_values[1]
+        C_rr = iteration_damper_values[2]
+        C_rl = iteration_damper_values[3]
+
+        #calculate elastic rolling moment (N*m)
+        roll_moment = force_function[i]*9.80665*(frs+fls+rls+rrs)*(cg_height-rc_height_CG)
+        roll_moment_next = force_function[i+1]*9.80665*(frs+fls+rls+rrs)*(cg_height-rc_height_CG)
+        roll_moment_half_next = (roll_moment+roll_moment_next)/2
+
+        #calculate geometric sprung weight transfer, f/r (N transfered to/ removed from SINGLE tire)
+        wt_gsm_f = force_function[i]*9.80665*(fls+frs)*(rc_height_f/tw_f)
+        wt_gsmNext_f = force_function[i+1]*9.80665*(fls+frs)*(rc_height_f/tw_f)
+        wt_gsmHalfNext_f = (wt_gsm_f+wt_gsmNext_f)/2
+
+        wt_gsm_r = force_function[i]*9.80665*(rls+rrs)*(rc_height_r/tw_r)
+        wt_gsmNext_r = force_function[i+1]*9.80665*(rls+rrs)*(rc_height_r/tw_r)
+        wt_gsmHalfNext_r = (wt_gsm_r+wt_gsmNext_r)/2
+
+        #calculate geometric unsprung weight transfer, f/r (N transfered to/ removed from SINGLE tire)
+        wt_gusm_f = force_function[i]*9.80665*(fru+flu)*(tire_diam_f/(2*tw_f))
+        wt_gusmNext_f = force_function[i+1]*9.80665*(fru+flu)*(tire_diam_f/(2*tw_f))
+        wt_gusmHalfNext_f = (wt_gusm_f+wt_gusmNext_f)/2
+
+        wt_gusm_r = force_function[i]*9.80665*(rru+rlu)*(tire_diam_r/(2*tw_r))
+        wt_gusmNext_r = force_function[i+1]*9.80665*(rru+rlu)*(tire_diam_r/(2*tw_r))
+        wt_gusmHalfNext_r = (wt_gusm_r+wt_gusmNext_r)/2
+
+        #calculate next step with RK4
+
+        #Assign/ compute output variables
 
     return(t, rollAngle, damperVelF, damperVelR,
            damperForceFO, damperForceFI, damperForceRO, damperForceRI,

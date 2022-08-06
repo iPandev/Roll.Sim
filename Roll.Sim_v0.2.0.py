@@ -16,13 +16,13 @@ from Func_steady_state_roll import RSF_steady_state
 from Func_time_response_5 import RSF_transient_response_V
 
 if __name__ == '__main__':
-    print('Welcome to Roll.Sim 0.2.0!')
+    print(f'Welcome to Roll.Sim {version}!')
 
     safety = tk.Tk()
-    safety.title('Roll.Sim 0.2.0')
+    safety.title(f'Roll.Sim {version}')
 
     Label1 = tk.Label(safety, wraplength=400, justify="center",
-                text="""Roll.Sim 0.2.0""", font=('bold')).grid(row=0, column=0)
+                text=f"""Roll.Sim {version}""", font=('bold')).grid(row=0, column=0)
 
     Label1 = tk.Label(safety, wraplength=400, justify="center",
                 text="""Vehicle Response Simulator
@@ -33,10 +33,10 @@ if __name__ == '__main__':
     Please read the complete safety warning and complete liability limitation before continuing by clicking the below buttons.
         """).grid(row=1, column=0)
 
-    def Home():  
+    def Home():
         
         root = tk.Tk()
-        root.title('Roll.Sim 0.2.0')
+        root.title(f'Roll.Sim {version}')
 
         #FRONT DATA GATHERING
 
@@ -1069,6 +1069,7 @@ if __name__ == '__main__':
             segments=10*(0.1+s) #how many 0.1s segments are there?
             n=10000
             
+            #Force Function definitions can be better packaged in function.py file, imported to the main
             if f_type == 1:
                 F = np.zeros(n)
                 start = int(round(n/segments, 0))
