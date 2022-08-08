@@ -8,6 +8,9 @@ For your own safety, DO NOT use Roll.Sim code on real-world vehicles as it is st
 Use Roll.Sim to study the effects of changing spring, damper, mass, geometry, and many other variables on a simulated vehicle model in time-varying pure lateral acceleration. Tire loads, damper force, roll angle, and many more variables are given as a function of time. Horizontal lines represent the steady-state solution at the peak G-force.
 
 ![screenshot_1.JPG](screenshot_1.JPG)
+
+Analyze the vehicle model in step, ramp, and sin G-force inputs, with more options to come.
+
 ![screenshot_2.JPG](screenshot_2.JPG)
 
 ## Areas of Active Development
