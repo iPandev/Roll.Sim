@@ -3,7 +3,6 @@ import math
 from Func_virtual_track_conversion import RSF_virtual_track
 from Func_update_damper_domain import RSF_update_damper_domain
 
-#can we perform conversions in the import statement? This might be cleanest.
 def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
     tw_f, tw_r, Ks_f, Ks_r, Karb_f, Karb_r, Csb_f, Csr_f, Cfb_f, Cfr_f, Csb_r, Csr_r, Cfb_r, Cfr_r, #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) spring rates, damper rates(N/(m/s))
     bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
@@ -17,7 +16,8 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
     dt = t[1]-t[0]
 
     #Initialize variable arrays, these will be the returned values.
-    rollAngle = np.zeros(n)
+    sprung_roll_angle = np.zeros(n)
+    total_roll_angle = np.zeros(n)
     wheelDispF = np.zeros(n)
     wheelDispR = np.zeros(n)
     tireDispF = np.zeros(n)
@@ -38,7 +38,7 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
     damperForceRI = np.zeros(n)
     frontLLT = np.zeros(n)
     rearLLT = np.zeros(n)
-    LLTR = np.zeros(n)
+    LLTr = np.zeros(n)
     
     #Other misc. variables
     rc_height_CG = rc_height_f+((fls+frs)/(frs+fls+rls+rrs))*(rc_height_r-rc_height_f)
@@ -118,17 +118,41 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
 
         #calculate next step with RK4
 
-        #Assign/ compute output variables
+        #assign/ compute output variables
+        total_roll_angle[i] = math.atan((A_r-A_l)/tw_v)*180/math.pi #deg
+    
+    #Find peak/min values
+    peakSRA = str(round(max(sprung_roll_angle), 3))
+    peakTRA = str(round(max(total_roll_angle), 3))
+    peakfV = str(round(max(damperVelF), 3))
+    peakrV = str(round(max(damperVelR), 3))
+    peakDampFO = str(round(abs(max(damperForceFO))))
+    peakDampRO = str(round(abs(max(damperForceRO))))
+    peakDampFI = str(round(abs(max(damperForceFI))))
+    peakDampRI = str(round(abs(max(damperForceRI))))
+    peakLoadFO = str(round(max(tireLoadFO)))
+    peakLoadRO = str(round(max(tireLoadRO)))
+    peakfLLT = str(round(100*max(frontLLT), 1))
+    peakrLLT = str(round(100*max(rearLLT), 1))
+    peakLLTR = str(round(max(LLTr), 3))
+    minLLTR = str(round(min(LLTr), 3))
 
-    return(t, rollAngle, damperVelF, damperVelR,
+    return(t, sprung_roll_angle, damperVelF, damperVelR,
            damperForceFO, damperForceFI, damperForceRO, damperForceRI,
            tireLoadFO, tireLoadFI, tireLoadRO, tireLoadRI,
-           100*frontLLT, 100*rearLLT, LLTR, #14
+           100*frontLLT, 100*rearLLT, LLTr, #14
            
-           peakRA, overshootRA, peakfV, peakrV,
+           #Returned None-types substitute depricated variables from v5 of this function, to maintain the positional value of other returns.
+           peakSRA, None, peakfV, peakrV,
            peakDampFO, peakDampRO, peakDampFI, peakDampRI, #22
            peakLoadFO, peakLoadRO, #24
            peakfLLT, peakrLLT, peakLLTR, #27
-           overshootfLLT, overshootrLLT, overshootLLTR, minLLTR, #31
+           None, None, None, minLLTR, #31
           
-           1000*(wheelDispF+tireDispF), 1000*(wheelDispR+tireDispR)) #32, 33
+           1000*(wheelDispF+tireDispF), 1000*(wheelDispR+tireDispR), #32, 33
+           
+           #new variables for v6 of this function
+           total_roll_angle,
+
+           peakTRA
+           )
