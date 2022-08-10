@@ -10,7 +10,7 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
     cg_height, rc_height_f, rc_height_r, tire_diam_f, tire_diam_r #suspension geometries (m)
     ):
 
-    #Define timing array, dt for loop
+    #Define timing array, dt for RK4 loop
     n=len(force_function)
     t = np.linspace(-0.1, seconds, num=n)
     dt = t[1]-t[0]
