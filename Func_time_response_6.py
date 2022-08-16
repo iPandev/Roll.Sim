@@ -1,14 +1,20 @@
+#Incomplete and under construction. Roll.Sim_v0.2.0.py still uses this function's predecessor.
+
 import numpy as np
 import math
 from Func_virtual_track_conversion import RSF_virtual_track
 from Func_update_damper_domain import RSF_update_damper_domain
+from Func_eqs_of_motion import EOM_A_r_dd, EOM_A_l_dd
 
-def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
+def RSF_transient_response_6(force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
     tw_f, tw_r, Ks_f, Ks_r, Karb_f, Karb_r, Csb_f, Csr_f, Cfb_f, Cfr_f, Csb_r, Csr_r, Cfb_r, Cfr_r, #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) spring rates, damper rates(N/(m/s))
     bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
-    fls, frs, rls, rrs, flu, fru, rlu, rru, rotatingInertia, #masses (kg) and rotating inertia (kg*m**2)
-    cg_height, rc_height_f, rc_height_r, tire_diam_f, tire_diam_r #suspension geometries (m)
-    ):
+    fls, frs, rls, rrs, flu, fru, rlu, rru, roll_inertia, #masses (kg) and rotating inertia (kg*m**2)
+    cg_height, rc_height_f, rc_height_r, tire_diam_f, tire_diam_r, #suspension geometries (m)
+    WS_motion_ratio_f, WS_motion_ratio_r, WD_motion_ratio_f, WD_motion_ratio_r, #Wheel/spring or Wheel/damper motion ratios
+    Kt_f, Kt_r, Ct_f, Ct_r, #tire spring (N/m) and damping (N/(m/s)) rates
+    aero_load_f, aero_load_r #aerodynamic forces (N)
+):
 
     #Define timing array, dt for RK4 loop
     n=len(force_function)
@@ -16,29 +22,37 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
     dt = t[1]-t[0]
 
     #Initialize variable arrays, these will be the returned values.
+    chassis_disp_r = np.zeros(n)
+    chassis_disp_l = np.zeros(n)
     sprung_roll_angle = np.zeros(n)
     total_roll_angle = np.zeros(n)
-    wheelDispF = np.zeros(n)
-    wheelDispR = np.zeros(n)
-    tireDispF = np.zeros(n)
-    tireDispR = np.zeros(n)
-    damperDispF = np.zeros(n)
-    damperDispR = np.zeros(n)
-    damperVelF = np.zeros(n)
-    damperVelR = np.zeros(n)
-    springDispF = np.zeros(n)
-    springDispR = np.zeros(n)
-    tireLoadFO = np.zeros(n)
-    tireLoadFI = np.zeros(n)
-    tireLoadRO = np.zeros(n)
-    tireLoadRI = np.zeros(n)
-    damperForceFO = np.zeros(n)
-    damperForceFI = np.zeros(n)
-    damperForceRO = np.zeros(n)
-    damperForceRI = np.zeros(n)
-    frontLLT = np.zeros(n)
-    rearLLT = np.zeros(n)
-    LLTr = np.zeros(n)
+    damper_vel_fr = np.zeros(n)
+    damper_vel_fl = np.zeros(n)
+    damper_vel_rr = np.zeros(n)
+    damper_vel_rl = np.zeros(n)
+    damper_force_fr = np.zeros(n)
+    damper_force_fl = np.zeros(n)
+    damper_force_rr = np.zeros(n)
+    damper_force_rl = np.zeros(n)
+    tire_load_fr = np.zeros(n)
+    tire_load_fl = np.zeros(n)
+    tire_load_rr = np.zeros(n)
+    tire_load_rl = np.zeros(n)
+    LLT_f = np.zeros(n)
+    LLT_r = np.zeros(n)
+    LLT_ratio = np.zeros(n)
+    WT_spring_roll_f = np.zeros(n)
+    WT_spring_roll_r = np.zeros(n)
+    WT_ARB_f = np.zeros(n)
+    WT_ARB_r = np.zeros(n)
+    #WT_damper_f = computed from damper_force_fr and damper_force_fl arrays in main file to save mem in this function
+    #WT_damper_R = computed from damper_force_rr and damper_force_rl arrays in main file to save mem in this function
+    WT_gsm_f = np.zeros(n) #opportunity to remove wt_gsm_f variable by referencing this array
+    WT_gsm_r = np.zeros(n) #opportunity to remove wt_gsm_r variable by referencing this array
+    WT_gusm_f = np.zeros(n) #opportunity to remove wt_gusm_f variable by referencing this array
+    WT_gusm_r = np.zeros(n) #opportunity to remove wt_gusm_r variable by referencing this array
+    WT_Ct_f = np.zeros(n)
+    WT_Ct_r = np.zeros(n)
     
     #Other misc. variables
     rc_height_CG = rc_height_f+((fls+frs)/(frs+fls+rls+rrs))*(rc_height_r-rc_height_f)
@@ -88,44 +102,118 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
         iteration_damper_values = RSF_update_damper_domain(Csb_f_v, Csr_f_v, Cfb_f_v, Cfr_f_v, Csb_r_v, Csr_r_v, Cfb_r_v, Cfr_r_v, #damper rates (N/(m/s))
             bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
             A_r_d, A_l_d, B_fr_d, B_fl_d, B_rr_d, B_rl_d)
-        C_fr = iteration_damper_values[0]
-        C_fl = iteration_damper_values[1]
-        C_rr = iteration_damper_values[2]
-        C_rl = iteration_damper_values[3]
+        C_fr = iteration_damper_values[0] #N/(m/s)
+        C_fl = iteration_damper_values[1] #N/(m/s)
+        C_rr = iteration_damper_values[2] #N/(m/s)
+        C_rl = iteration_damper_values[3] #N/(m/s)
 
         #calculate elastic rolling moment (N*m)
         roll_moment = force_function[i]*9.80665*(frs+fls+rls+rrs)*(cg_height-rc_height_CG)
-        roll_moment_next = force_function[i+1]*9.80665*(frs+fls+rls+rrs)*(cg_height-rc_height_CG)
-        roll_moment_half_next = (roll_moment+roll_moment_next)/2
+        roll_moment_Next = force_function[i+1]*9.80665*(frs+fls+rls+rrs)*(cg_height-rc_height_CG)
+        roll_moment_HalfNext = (roll_moment+roll_moment_Next)/2
 
         #calculate geometric sprung weight transfer, f/r (N transfered to/ removed from SINGLE tire)
         wt_gsm_f = force_function[i]*9.80665*(fls+frs)*(rc_height_f/tw_f)
-        wt_gsmNext_f = force_function[i+1]*9.80665*(fls+frs)*(rc_height_f/tw_f)
-        wt_gsmHalfNext_f = (wt_gsm_f+wt_gsmNext_f)/2
+        wt_gsm_Next_f = force_function[i+1]*9.80665*(fls+frs)*(rc_height_f/tw_f)
+        wt_gsm_HalfNext_f = (wt_gsm_f+wt_gsm_Next_f)/2
+        WT_gsm_f[i] = wt_gsm_f
 
         wt_gsm_r = force_function[i]*9.80665*(rls+rrs)*(rc_height_r/tw_r)
-        wt_gsmNext_r = force_function[i+1]*9.80665*(rls+rrs)*(rc_height_r/tw_r)
-        wt_gsmHalfNext_r = (wt_gsm_r+wt_gsmNext_r)/2
+        wt_gsm_Next_r = force_function[i+1]*9.80665*(rls+rrs)*(rc_height_r/tw_r)
+        wt_gsm_HalfNext_r = (wt_gsm_r+wt_gsm_Next_r)/2
+        WT_gsm_r[i] = wt_gsm_r
 
         #calculate geometric unsprung weight transfer, f/r (N transfered to/ removed from SINGLE tire)
         wt_gusm_f = force_function[i]*9.80665*(fru+flu)*(tire_diam_f/(2*tw_f))
-        wt_gusmNext_f = force_function[i+1]*9.80665*(fru+flu)*(tire_diam_f/(2*tw_f))
-        wt_gusmHalfNext_f = (wt_gusm_f+wt_gusmNext_f)/2
+        wt_gusm_Next_f = force_function[i+1]*9.80665*(fru+flu)*(tire_diam_f/(2*tw_f))
+        wt_gusm_HalfNext_f = (wt_gusm_f+wt_gusm_Next_f)/2
+        WT_gusm_f[i] = wt_gusm_f
 
         wt_gusm_r = force_function[i]*9.80665*(rru+rlu)*(tire_diam_r/(2*tw_r))
-        wt_gusmNext_r = force_function[i+1]*9.80665*(rru+rlu)*(tire_diam_r/(2*tw_r))
-        wt_gusmHalfNext_r = (wt_gusm_r+wt_gusmNext_r)/2
-
-        #calculate next step with RK4
+        wt_gusm_Next_r = force_function[i+1]*9.80665*(rru+rlu)*(tire_diam_r/(2*tw_r))
+        wt_gusm_HalfNext_r = (wt_gusm_r+wt_gusm_Next_r)/2
+        WT_gusm_r[i] = wt_gusm_r
 
         #assign/ compute output variables
+        chassis_disp_r[i] = A_r
+        chassis_disp_l[i] = A_l
+        sprung_roll_angle[i] = math.atan((A_r-(B_fr+B_rr)/2-A_l+(B_fl+B_rl)/2)/tw_v)*180/math.pi #deg
         total_roll_angle[i] = math.atan((A_r-A_l)/tw_v)*180/math.pi #deg
+        damper_vel_fr[i] = (A_r_d-B_fr_d) / (WD_motion_ratio_f) #m/s
+        damper_vel_fl[i] = (A_l_d-B_fl_d) / (WD_motion_ratio_f) #m/s
+        damper_vel_rr[i] = (A_r_d-B_rr_d) / (WD_motion_ratio_r) #m/s
+        damper_vel_rl[i] = (A_l_d-B_rl_d) / (WD_motion_ratio_r) #m/s
+        damper_force_fr[i] = C_fr * (A_r_d-B_fr_d) / (WD_motion_ratio_f) #N
+        damper_force_fl[i] = C_fl * (A_l_d-B_fl_d) / (WD_motion_ratio_f) #N
+        damper_force_rr[i] = C_rr * (A_r_d-B_rr_d) / (WD_motion_ratio_r) #N
+        damper_force_rl[i] = C_rl * (A_l_d-B_rl_d) / (WD_motion_ratio_r) #N
+        tire_load_fr[i] = aero_load_f + (frs+fru)*9.80665 + Kt_f*B_fr + Ct_f*B_fr_d #N TODO: unsprung inertial force?
+        tire_load_fl[i] = aero_load_f + (fls+flu)*9.80665 + Kt_f*B_fl + Ct_f*B_fl_d #N TODO: unsprung inertial force?
+        tire_load_rr[i] = aero_load_r + (rrs+rru)*9.80665 + Kt_r*B_rr + Ct_r*B_rr_d #N TODO: unsprung inertial force?
+        tire_load_rl[i] = aero_load_r + (rls+rlu)*9.80665 + Kt_r*B_rl + Ct_r*B_rl_d #N TODO: unsprung inertial force?
+        LLT_f[i] = tire_load_fr / (tire_load_fr+tire_load_fl)
+        LLT_r[i] = tire_load_rr / (tire_load_rr+tire_load_rl)
+        LLT_ratio[i] = LLT_f[i] / LLT_r[i]
+        WT_spring_roll_f[i] = Ks_f_v * (A_r-B_fr-(A_l-B_fl)) / (WS_motion_ratio_f) #N
+        WT_spring_roll_r[i] = Ks_r_v * (A_r-B_rr-(A_l-B_rl)) / (WS_motion_ratio_r) #N
+        WT_ARB_f[i] = Karb_f_v * (A_r-B_fr) - (A_l-B_fl) #N
+        WT_ARB_r[i] = Karb_r_v * (A_r-B_rr) - (A_l-B_rl) #N
+        WT_Ct_f[i] = Ct_f * (B_fr_d-B_fl_d) #N
+        WT_Ct_r[i] = Ct_r * (B_rr_d-B_rl_d) #N
+
+        #calculate next step with Runge-Kutta (4th order, 2nd derivative) for the following 6 DOF:
+        #A_r_dd = F(force_function, A_r, A_r_d), interim vars c1-c4, d1-d4
+        #A_l_dd = F(force_function, A_l, A_l_d), interim vars e1-e4, f1-f4
+        #B_fr_dd = F(force_function, B_fr, B_fr_d), interim vars s1-s4, t1-t4
+        #B_fl_dd = F(force_function, B_fl, B_fl_d), interim vars u1-u4, v1-v4
+        #B_rr_dd = F(force_function, B_rr, B_rr_d), interim vars w1-w4, x1-x4
+        #B_rl_dd = F(force_function, B_rl, B_rl_d), interim vars y1-y4, z1-z4
+
+        A_r_dd = EOM_A_r_dd(roll_moment, tw_v, roll_inertia, A_r, A_r_d, A_l, A_l_dd, B_fr, B_fr_d, B_fl, B_rr, B_rr_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+        A_l_dd = EOM_A_l_dd(roll_moment, tw_v, roll_inertia, A_r, A_l_d, A_l, A_r_dd, B_fr, B_fl_d, B_fl, B_rr, B_rl_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+
+        c1 = A_r_d
+        d1 = EOM_A_r_dd(roll_moment, tw_v, roll_inertia, A_r, A_r_d, A_l, A_l_dd, B_fr, B_fr_d, B_fl, B_rr, B_rr_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+        e1 = A_l_d
+        f1 = EOM_A_l_dd(roll_moment, tw_v, roll_inertia, A_r, A_l_d, A_l, A_r_dd, B_fr, B_fl_d, B_fl, B_rr, B_rl_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+        #s1 = 
+        #t1 = 
+        #u1 = 
+        #v1 = 
+        #w1 = 
+        #x1 = 
+        #y1 = 
+        #z1 = 
+
+        c2 = A_r_d + d1/2
+        d2 = EOM_A_r_dd(roll_moment_HalfNext, tw_v, roll_inertia, (A_r+c1/2), (A_r_d+d1/2), A_l, A_l_dd, B_fr, B_fr_d, B_fl, B_rr, B_rr_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+        e2 = A_l_d + f1/2
+        f2 = EOM_A_l_dd(roll_moment_HalfNext, tw_v, roll_inertia, A_r, (A_l_d+f1/2), (A_l+e1/2), A_r_dd, B_fr, B_fl_d, B_fl, B_rr, B_rl_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+
+        c3 = A_r_d + d2/2
+        d3 = EOM_A_r_dd(roll_moment_HalfNext, tw_v, roll_inertia, (A_r+c2/2), (A_r_d+d2/2), A_l, A_l_dd, B_fr, B_fr_d, B_fl, B_rr, B_rr_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+        e3 = A_l_d + f2/2
+        f3 = EOM_A_l_dd(roll_moment_HalfNext, tw_v, roll_inertia, A_r, (A_l_d+f2/2), (A_l+e2/2), A_r_dd, B_fr, B_fl_d, B_fl, B_rr, B_rl_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+
+        c4 = A_r_d + d3
+        d4 = EOM_A_r_dd(roll_moment_Next, tw_v, roll_inertia, (A_r+c3), (A_r_d+d3), A_l, A_l_dd, B_fr, B_fr_d, B_fl, B_rr, B_rr_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+        e4 = A_l_d + f3
+        f4 = EOM_A_l_dd(roll_moment_Next, tw_v, roll_inertia, A_r, (A_l_d+f3), (A_l+e3), A_r_dd, B_fr, B_fl_d, B_fl, B_rr, B_rl_d, B_rl, Ks_f_v, Ks_r_v, Karb_f_v, Karb_r_v, C_fr, C_rr)
+
+        A_r_Next = A_r + dt*(c1 + 2*c2 + 2*c3 + c4)/6
+        A_r_d_Next = A_r_d + dt*(d1 + 2*d2 + 2*d3 + d4)/6
+        A_l_Next = A_l + dt*(e1 + 2*e2 + 2*e3 + e4)/6
+        A_l_d_Next = A_l_d + dt*(f1 + 2*f2 + 2*f3 + f4)/6
+
+        #Reset variables for next iteration
+        A_r = A_r_Next
+        A_r_d = A_r_d_Next
+        A_l = A_l_Next
+        A_l_d = A_l_d_Next
     
     #Find peak/min values
     peakSRA = str(round(max(sprung_roll_angle), 3))
     peakTRA = str(round(max(total_roll_angle), 3))
-    peakfV = str(round(max(damperVelF), 3))
-    peakrV = str(round(max(damperVelR), 3))
     peakDampFO = str(round(abs(max(damperForceFO))))
     peakDampRO = str(round(abs(max(damperForceRO))))
     peakDampFI = str(round(abs(max(damperForceFI))))
@@ -137,22 +225,8 @@ def RSF_transient_response_VI(force_function, seconds, #Force function(Gs, w.r.t
     peakLLTR = str(round(max(LLTr), 3))
     minLLTR = str(round(min(LLTr), 3))
 
-    return(t, sprung_roll_angle, damperVelF, damperVelR,
-           damperForceFO, damperForceFI, damperForceRO, damperForceRI,
-           tireLoadFO, tireLoadFI, tireLoadRO, tireLoadRI,
-           100*frontLLT, 100*rearLLT, LLTr, #14
-           
-           #Returned None-types substitute depricated variables from v5 of this function, to maintain the positional value of other returns.
-           peakSRA, None, peakfV, peakrV,
-           peakDampFO, peakDampRO, peakDampFI, peakDampRI, #22
-           peakLoadFO, peakLoadRO, #24
-           peakfLLT, peakrLLT, peakLLTR, #27
-           None, None, None, minLLTR, #31
-          
-           1000*(wheelDispF+tireDispF), 1000*(wheelDispR+tireDispR), #32, 33
-           
-           #new variables for v6 of this function
-           total_roll_angle,
-
-           peakTRA
-           )
+    return(t, #time array (s)
+        total_roll_angle, #deg
+        damper_vel_fr, damper_vel_fr, damper_vel_fr, damper_vel_fr, #m/s
+        damper_force_fr, damper_force_fr, damper_force_fr, damper_force_fr #N
+    )
