@@ -236,32 +236,19 @@ def RSF_transient_response_6(force_function, seconds, #Force function(Gs, w.r.t.
         y4 = dt * (B_rl_d + z3)
         z4 = dt * EOM_B_rl_dd(wt_gsm_Next_r, wt_gusm_Next_r, A_r, A_l_d, A_l, B_rr, (B_rl_d+z3), (B_rl+y3), Ks_r_v, Karb_r_v, damper_force_rl_v[i], Kt_r, Ct_r, rlu)
 
-        A_r_Next = A_r + (c1 + 2*c2 + 2*c3 + c4)/6
-        A_r_d_Next = A_r_d + (d1 + 2*d2 + 2*d3 + d4)/6
-        A_l_Next = A_l + (e1 + 2*e2 + 2*e3 + e4)/6
-        A_l_d_Next = A_l_d + (f1 + 2*f2 + 2*f3 + f4)/6
-        B_fr_Next = B_fr + (s1 + 2*s2 + 2*s3 + s4)/6
-        B_fr_d_Next = B_fr_d + (t1 + 2*t2 + 2*t3 + t4)/6
-        B_fl_Next = B_fl + (u1 + 2*u2 + 2*u3 + u4)/6
-        B_fl_d_Next = B_fl_d + (v1 + 2*v2 + 2*v3 + v4)/6
-        B_rr_Next = B_rr + (w1 + 2*w2 + 2*w3 + w4)/6
-        B_rr_d_Next = B_rr_d + (x1 + 2*x2 + 2*x3 + x4)/6
-        B_rl_Next = B_rl + (y1 + 2*y2 + 2*y3 + y4)/6
-        B_rl_d_Next = B_rl_d + (z1 + 2*z2 + 2*z3 + z4)/6
-
-        #Reset variables for next iteration
-        A_r = A_r_Next
-        A_r_d = A_r_d_Next
-        A_l = A_l_Next
-        A_l_d = A_l_d_Next
-        B_fr = B_fr_Next
-        B_fr_d = B_fr_d_Next
-        B_fl = B_fl_Next
-        B_fl_d = B_fl_d_Next
-        B_rr = B_rr_Next
-        B_rr_d = B_rr_d_Next
-        B_rl = B_rl_Next
-        B_rl_d = B_rl_d_Next
+        #Assign next step's values for all variables
+        A_r = A_r + (c1 + 2*c2 + 2*c3 + c4)/6
+        A_r_d = A_r_d + (d1 + 2*d2 + 2*d3 + d4)/6
+        A_l = A_l + (e1 + 2*e2 + 2*e3 + e4)/6
+        A_l_d = A_l_d + (f1 + 2*f2 + 2*f3 + f4)/6
+        B_fr = B_fr + (s1 + 2*s2 + 2*s3 + s4)/6
+        B_fr_d = B_fr_d + (t1 + 2*t2 + 2*t3 + t4)/6
+        B_fl = B_fl + (u1 + 2*u2 + 2*u3 + u4)/6
+        B_fl_d = B_fl_d + (v1 + 2*v2 + 2*v3 + v4)/6
+        B_rr = B_rr + (w1 + 2*w2 + 2*w3 + w4)/6
+        B_rr_d = B_rr_d + (x1 + 2*x2 + 2*x3 + x4)/6
+        B_rl = B_rl + (y1 + 2*y2 + 2*y3 + y4)/6
+        B_rl_d = B_rl_d + (z1 + 2*z2 + 2*z3 + z4)/6
 
     #Find peak/min values
     peakSRA = str(round(max(sprung_roll_angle), 3))

@@ -14,6 +14,7 @@ from Func_wheel_damping_ratio import RSF_corner_damping_ratio
 from Func_weight_dist import RSF_weight_dist
 from Func_steady_state_roll import RSF_steady_state
 from Func_time_response_5 import RSF_transient_response_V
+from Func_time_response_6 import RSF_transient_response_6
 
 if __name__ == '__main__':
     print(f'Welcome to Roll.Sim {version}!')
@@ -930,14 +931,14 @@ if __name__ == '__main__':
             RSpringRate = float(eRSpringRate.get())
             RSpringRateMod = float(eRSpringRateMod.get())
 
-            FMotionRatioWS = float(eFMotionRatioWS.get())
-            FMotionRatioWSMod = float(eFMotionRatioWSMod.get())
-            FMotionRatioWD = float(eFMotionRatioWD.get())
-            FMotionRatioWDMod = float(eFMotionRatioWDMod.get())
-            RMotionRatioWS = float(eRMotionRatioWS.get())
-            RMotionRatioWSMod = float(eRMotionRatioWSMod.get())
-            RMotionRatioWD = float(eRMotionRatioWD.get())
-            RMotionRatioWDMod = float(eRMotionRatioWDMod.get())
+            WS_motion_ratio_f = float(eFMotionRatioWS.get())
+            WS_motion_ratio_f_mod = float(eFMotionRatioWSMod.get())
+            WD_motion_ratio_f = float(eFMotionRatioWD.get())
+            WD_motion_ratio_f_mod = float(eFMotionRatioWDMod.get())
+            WS_motion_ratio_r = float(eRMotionRatioWS.get())
+            WS_motion_ratio_r_mod = float(eRMotionRatioWSMod.get())
+            WD_motion_ratio_r = float(eRMotionRatioWD.get())
+            WD_motion_ratio_r_mod = float(eRMotionRatioWDMod.get())
 
             FDamperRateSB = float(eFDamperRateSB.get())
             FDamperRateSBMod = float(eFDamperRateSBMod.get())
@@ -992,12 +993,12 @@ if __name__ == '__main__':
             RLSMassMod = RLMassMod - RLUMassMod
             RRSMassMod = RRMassMod - RRUMassMod
 
-            CMHeight = float(eCMHeight.get())
-            CMHeightMod = float(eCMHeightMod.get())
-            FRCHeight = float(eRCHeightF.get())
-            FRCHeightMod = float(eRCHeightFMod.get())
-            RRCHeight = float(eRCHeightR.get())
-            RRCHeightMod = float(eRCHeightRMod.get())
+            cg_height = float(eCMHeight.get())
+            cg_height_mod = float(eCMHeightMod.get())
+            rc_height_f = float(eRCHeightF.get())
+            rc_height_f_mod = float(eRCHeightFMod.get())
+            rc_height_r = float(eRCHeightR.get())
+            rc_height_r_mod = float(eRCHeightRMod.get())
             #WheelBase = float(eWB.get())
             #WheelBaseMod = float(eWBMod.get())
             TWf = float(eFTW.get())
@@ -1020,25 +1021,25 @@ if __name__ == '__main__':
             TireKFMod = float(eTireKFMod.get())
             TireKR = float(eTireKR.get())
             TireKRMod = float(eTireKRMod.get())
-            TireDF = float(eTireDF.get())
-            TireDFMod = float(eTireDFMod.get())
-            TireDR = float(eTireDR.get())
-            TireDRMod = float(eTireDRMod.get())
+            tire_diam_f = float(eTireDF.get())
+            tire_diam_f_mod = float(eTireDFMod.get())
+            tire_diam_r = float(eTireDR.get())
+            tire_diam_r_mod = float(eTireDRMod.get())
 
             RollInertia = float(eRollInertia.get())
             RollInertiaMod = float(eRollInertiaMod.get())
             
-            s = float(eSec.get())
+            seconds = float(eSec.get())
             rampT = float(eRampT.get())
             rampTMod = float(eRampTMod.get())
             p = float(eSinT.get())
             pMod = float(eSinTMod.get())
 
-            FRWheelRateResult = RSF_wheel_rate(FSpringRate,FMotionRatioWS,FSpringRateMod, FMotionRatioWSMod)
+            FRWheelRateResult = RSF_wheel_rate(FSpringRate,WS_motion_ratio_f,FSpringRateMod, WS_motion_ratio_f_mod)
             FRWheelRate = FRWheelRateResult[0]
             FRWheelRateMod = FRWheelRateResult[1]
 
-            RRWheelRateResult = RSF_wheel_rate(RSpringRate,RMotionRatioWS,RSpringRateMod, RMotionRatioWSMod)
+            RRWheelRateResult = RSF_wheel_rate(RSpringRate,WS_motion_ratio_r,RSpringRateMod, WS_motion_ratio_r_mod)
             RRWheelRate = RRWheelRateResult[0]
             RRWheelRateMod = RRWheelRateResult[1]
 
@@ -1048,70 +1049,90 @@ if __name__ == '__main__':
             TotalSprungMass = SprungWeightDistResult[18]
             TotalSprungMassMod = SprungWeightDistResult[19]
 
-            SSRO = RSF_steady_state(FSprungWeightDist, CMHeight, FRCHeight, RRCHeight,
+            ssro = RSF_steady_state(FSprungWeightDist, cg_height, rc_height_f, rc_height_r,
                                 FRWheelRate, RRWheelRate, TotalSprungMass, FLUMass+FRUMass, RLUMass+RRUMass, Gforce, TWf, TWr,
-                                ARBRateF, ARBRateR, FMotionRatioWS, RMotionRatioWS, FMotionRatioWD, RMotionRatioWD,
+                                ARBRateF, ARBRateR, WS_motion_ratio_f, WS_motion_ratio_r, WD_motion_ratio_f, WD_motion_ratio_r,
                                 FAeroLoad, RAeroLoad, RollInertia,
-                                (FDamperRateSB/(FMotionRatioWD**2)), (FDamperRateSR/(FMotionRatioWD**2)), (RDamperRateSB/(RMotionRatioWD**2)), (RDamperRateSR/(RMotionRatioWD**2)),
-                                (FDamperRateFB/(FMotionRatioWD**2)), (FDamperRateFR/(FMotionRatioWD**2)), (RDamperRateFB/(RMotionRatioWD**2)), (RDamperRateFR/(RMotionRatioWD**2)),
-                                TireDF, TireDR, TireKF, TireKR 
+                                (FDamperRateSB/(WD_motion_ratio_f**2)), (FDamperRateSR/(WD_motion_ratio_f**2)), (RDamperRateSB/(WD_motion_ratio_r**2)), (RDamperRateSR/(WD_motion_ratio_r**2)),
+                                (FDamperRateFB/(WD_motion_ratio_f**2)), (FDamperRateFR/(WD_motion_ratio_f**2)), (RDamperRateFB/(WD_motion_ratio_r**2)), (RDamperRateFR/(WD_motion_ratio_r**2)),
+                                tire_diam_f, tire_diam_r, TireKF, TireKR 
                                     )
 
-            SSROMod = RSF_steady_state(FSprungWeightDistMod, CMHeightMod, FRCHeightMod, RRCHeightMod,
+            ssro_mod = RSF_steady_state(FSprungWeightDistMod, cg_height_mod, rc_height_f_mod, rc_height_r_mod,
                                 FRWheelRateMod, RRWheelRateMod, TotalSprungMassMod, FLUMassMod+FRUMassMod, RLUMassMod+RRUMassMod, GforceMod, TWfMod, TWrMod,
-                                ARBRateFMod, ARBRateRMod, FMotionRatioWSMod, RMotionRatioWSMod, FMotionRatioWDMod, RMotionRatioWDMod,
+                                ARBRateFMod, ARBRateRMod, WS_motion_ratio_f_mod, WS_motion_ratio_r_mod, WD_motion_ratio_f_mod, WD_motion_ratio_r_mod,
                                 FAeroLoadMod, RAeroLoadMod, RollInertiaMod,
-                                (FDamperRateSBMod/(FMotionRatioWDMod**2)), (FDamperRateSRMod/(FMotionRatioWDMod**2)), (RDamperRateSBMod/(RMotionRatioWDMod**2)), (RDamperRateSRMod/(RMotionRatioWDMod**2)),
-                                (FDamperRateFBMod/(FMotionRatioWDMod**2)), (FDamperRateFRMod/(FMotionRatioWDMod**2)), (RDamperRateFBMod/(RMotionRatioWDMod**2)), (RDamperRateFRMod/(RMotionRatioWDMod**2)),
-                                TireDFMod, TireDRMod, TireKFMod, TireKRMod 
+                                (FDamperRateSBMod/(WD_motion_ratio_f_mod**2)), (FDamperRateSRMod/(WD_motion_ratio_f_mod**2)), (RDamperRateSBMod/(WD_motion_ratio_r_mod**2)), (RDamperRateSRMod/(WD_motion_ratio_r_mod**2)),
+                                (FDamperRateFBMod/(WD_motion_ratio_f_mod**2)), (FDamperRateFRMod/(WD_motion_ratio_f_mod**2)), (RDamperRateFBMod/(WD_motion_ratio_r_mod**2)), (RDamperRateFRMod/(WD_motion_ratio_r_mod**2)),
+                                tire_diam_f_mod, tire_diam_r_mod, TireKFMod, TireKRMod
                                     )
             
-            segments=10*(0.1+s) #how many 0.1s segments are there?
+            segments=10*(0.1+seconds) #how many 0.1s segments are there?
             n=10000
             
             #Force Function definitions can be better packaged in function.py file, imported to the main
             if f_type == 1:
-                F = np.zeros(n)
+                force_function = np.zeros(n)
                 start = int(round(n/segments, 0))
-                F[start:n] = Gforce
-                F_mod = np.zeros(n)
-                F_mod[start:n] = GforceMod
+                force_function[start:n] = Gforce
+                force_function_mod = np.zeros(n)
+                force_function_mod[start:n] = GforceMod
             elif f_type == 2:
-                F = np.zeros(n)
+                force_function = np.zeros(n)
                 start = int(round(n/segments, 0))
                 ramp = int(round((rampT*10+1)*n/segments, 0))
-                F[start:ramp] = np.linspace(0, Gforce, abs(start-ramp))
-                F[ramp:n] = Gforce
-                F_mod = np.zeros(n)
+                force_function[start:ramp] = np.linspace(0, Gforce, abs(start-ramp))
+                force_function[ramp:n] = Gforce
+                force_function_mod = np.zeros(n)
                 rampMod = int(round((rampTMod*10+1)*n/segments, 0))
-                F_mod[start:rampMod] = np.linspace(0, GforceMod, abs(start-rampMod))
-                F_mod[rampMod:n] = GforceMod
+                force_function_mod[start:rampMod] = np.linspace(0, GforceMod, abs(start-rampMod))
+                force_function_mod[rampMod:n] = GforceMod
             elif f_type == 3:
-                F = np.zeros(n)
+                force_function = np.zeros(n)
                 start = int(round(n/segments, 0))
-                F[start:n] = Gforce*np.sin(np.linspace(0, np.pi*2*p, abs(start-n)))
-                F_mod = np.zeros(n)
-                F_mod[start:n] = GforceMod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
+                force_function[start:n] = Gforce*np.sin(np.linspace(0, np.pi*2*p, abs(start-n)))
+                force_function_mod = np.zeros(n)
+                force_function_mod[start:n] = GforceMod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
             
             #BIG TODO: we need to under stand if we're feeding in at-damper damper rates, or at-wheel damper rates for v6.
             #I think we need to feed in at-wheel rates v6. Look at the SSRO inputs above.
             stepResults = RSF_transient_response_V(TWf, TWr,
-                        FMotionRatioWD, RMotionRatioWD, FMotionRatioWS, RMotionRatioWS,
+                        WD_motion_ratio_f, WD_motion_ratio_r, WS_motion_ratio_f, WS_motion_ratio_r,
                         FDamperRateSB, RDamperRateSB, FDamperRateSR, RDamperRateSR,
                         FDamperRateFB, RDamperRateFB, FDamperRateFR, RDamperRateFR,
                         FKneeSpeedBump, RKneeSpeedBump, FKneeSpeedR, RKneeSpeedR,
                         ARBRateF, ARBRateR, FRWheelRate, RRWheelRate, FAeroLoad, RAeroLoad,
                         FLSMass, FRSMass, RLSMass, RRSMass, FLUMass, FRUMass, RLUMass, RRUMass, RollInertia,
-                        TireKF, TireKR, TireDF, TireDR, CMHeight, FRCHeight, RRCHeight, F, s)
+                        TireKF, TireKR, tire_diam_f, tire_diam_r, cg_height, rc_height_f, rc_height_r, force_function, seconds)
 
             stepResultsMod = RSF_transient_response_V(TWfMod, TWrMod,
-                        FMotionRatioWDMod, RMotionRatioWDMod, FMotionRatioWSMod, RMotionRatioWSMod,
+                        WD_motion_ratio_f_mod, WD_motion_ratio_r_mod, WS_motion_ratio_f_mod, WS_motion_ratio_r_mod,
                         FDamperRateSBMod, RDamperRateSBMod, FDamperRateSRMod, RDamperRateSRMod,
                         FDamperRateFBMod, RDamperRateFBMod, FDamperRateFRMod, RDamperRateFRMod,
                         FKneeSpeedBumpMod, RKneeSpeedBumpMod, FKneeSpeedRMod, RKneeSpeedRMod,
                         ARBRateFMod, ARBRateRMod, FRWheelRateMod, RRWheelRateMod, FAeroLoadMod, RAeroLoadMod,
                         FLSMassMod, FRSMassMod, RLSMassMod, RRSMassMod, FLUMassMod, FRUMassMod, RLUMassMod, RRUMassMod, RollInertiaMod,
-                        TireKFMod, TireKRMod, TireDFMod, TireDRMod, CMHeightMod, FRCHeightMod, RRCHeightMod, F_mod, s)
+                        TireKFMod, TireKRMod, tire_diam_f_mod, tire_diam_r_mod, cg_height_mod, rc_height_f_mod, rc_height_r_mod, force_function_mod, seconds)
+            
+            results = RSF_transient_response_6(force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
+                tw_f, tw_r, Ks_f, Ks_r, Karb_f, Karb_r, Csb_f, Csr_f, Cfb_f, Cfr_f, Csb_r, Csr_r, Cfb_r, Cfr_r, #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) wheel rates, at-wheel damper rates(N/(m/s))
+                bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
+                fls, frs, rls, rrs, flu, fru, rlu, rru, roll_inertia, #masses (kg) and rotating inertia (kg*m**2)
+                cg_height*0.0254, rc_height_f*0.0254, rc_height_r*0.0254, tire_diam_f*0.0254, tire_diam_r*0.0254, #suspension geometries (m)
+                WS_motion_ratio_f, WS_motion_ratio_r, WD_motion_ratio_f, WD_motion_ratio_r, #Wheel/spring or Wheel/damper motion ratios
+                Kt_f, Kt_r, Ct_f, Ct_r, #tire spring (N/m) and damping (N/(m/s)) rates
+                aero_load_f, aero_load_r #aerodynamic forces (N)
+            )
+
+            results_mod = RSF_transient_response_6(force_function_mod, seconds, #Force function(Gs, w.r.t. time) and duration(s)
+                tw_f, tw_r, Ks_f, Ks_r, Karb_f, Karb_r, Csb_f, Csr_f, Cfb_f, Cfr_f, Csb_r, Csr_r, Cfb_r, Cfr_r, #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) wheel rates, at-wheel damper rates(N/(m/s))
+                bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
+                fls, frs, rls, rrs, flu, fru, rlu, rru, roll_inertia, #masses (kg) and rotating inertia (kg*m**2)
+                cg_height_mod*0.0254, rc_height_f_mod*0.0254, rc_height_r_mod*0.0254, tire_diam_f_mod*0.0254, tire_diam_r_mod*0.0254, #suspension geometries (m)
+                WS_motion_ratio_f_mod, WS_motion_ratio_r_mod, WD_motion_ratio_f_mod, WD_motion_ratio_r_mod, #Wheel/spring or Wheel/damper motion ratios
+                Kt_f, Kt_r, Ct_f, Ct_r, #tire spring (N/m) and damping (N/(m/s)) rates
+                aero_load_f, aero_load_r #aerodynamic forces (N)
+            )
 
             plt.rcParams.update({'font.size': 7})
 
@@ -1120,8 +1141,8 @@ if __name__ == '__main__':
 
             x = len(stepResults[1])-1
             
-            ax0.plot(stepResults[0][0:x], F[0:x], label='Base')
-            ax0.plot(stepResults[0][0:x], F_mod[0:x], label='Mod')
+            ax0.plot(stepResults[0][0:x], force_function[0:x], label='Base')
+            ax0.plot(stepResults[0][0:x], force_function_mod[0:x], label='Mod')
             #ax1.plot(XMod, YMod, label='Mod')
             ax0.set_ylabel('Lateral Force Function (G)')
             ax0.set_xlabel('(Max Values); Base:' + str(Gforce) + '/ Mod:' + str(GforceMod))
@@ -1130,26 +1151,26 @@ if __name__ == '__main__':
             
             ax1.plot(stepResults[0][0:x], stepResults[1][0:x], label='Base')
             ax1.plot(stepResultsMod[0][0:x], stepResultsMod[1][0:x], label='Mod')
-            ax1.plot(stepResults[0][0:x], SSRO[8]*np.ones(x), label='Control, Base')
-            ax1.plot(stepResultsMod[0][0:x], SSROMod[8]*np.ones(x), label='Control, Mod')
+            ax1.plot(stepResults[0][0:x], ssro[8]*np.ones(x), label='Control, Base')
+            ax1.plot(stepResultsMod[0][0:x], ssro_mod[8]*np.ones(x), label='Control, Mod')
             #ax1.plot(XMod, YMod, label='Mod')
             ax1.set_ylabel('Roll Angle (deg)')
             ax1.set_xlabel('(Max Values); Base:' + stepResults[15] + '/ Mod:' + stepResultsMod[15] +
-                        '\n (Overshoot %); Base:' + str(round(100*max(stepResults[1])/SSRO[8]-100,1)) + '/ Mod:' + str(round(100*max(stepResultsMod[1])/SSROMod[8]-100,1)) +
-                        '\n (Error %); Base' + str(round(100*(SSRO[8]-stepResults[1][x-1])/SSRO[8],3)) + '/ Mod' + str(round(100*(SSROMod[8]-stepResultsMod[1][x-1])/SSROMod[8],3)))
+                        '\n (Overshoot %); Base:' + str(round(100*max(stepResults[1])/ssro[8]-100,1)) + '/ Mod:' + str(round(100*max(stepResultsMod[1])/ssro_mod[8]-100,1)) +
+                        '\n (Error %); Base' + str(round(100*(ssro[8]-stepResults[1][x-1])/ssro[8],3)) + '/ Mod' + str(round(100*(ssro_mod[8]-stepResultsMod[1][x-1])/ssro_mod[8],3)))
             ax1.grid()
             leg = ax1.legend()
             
-            print((SSRO[8]-stepResults[1][x-1])/SSRO[8])
+            print((ssro[8]-stepResults[1][x-1])/ssro[8])
             
             ax2.plot(stepResults[0][0:x], stepResults[32][0:x], label='Front, Base')
             ax2.plot(stepResults[0][0:x], stepResults[33][0:x], label='Rear, Base')
             ax2.plot(stepResultsMod[0][0:x], stepResultsMod[32][0:x], label='Front, Mod')
             ax2.plot(stepResultsMod[0][0:x], stepResultsMod[33][0:x], label='Rear, Mod')
-            ax2.plot(stepResults[0][0:x], SSRO[26]*np.ones(x), label='Control, Base Front')
-            ax2.plot(stepResults[0][0:x], SSRO[27]*np.ones(x), label='Control, Base Rear')
-            ax2.plot(stepResultsMod[0][0:x], SSROMod[26]*np.ones(x), label='Control, Mod Front')
-            ax2.plot(stepResultsMod[0][0:x], SSROMod[27]*np.ones(x), label='Control, Mod Rear')
+            ax2.plot(stepResults[0][0:x], ssro[26]*np.ones(x), label='Control, Base Front')
+            ax2.plot(stepResults[0][0:x], ssro[27]*np.ones(x), label='Control, Base Rear')
+            ax2.plot(stepResultsMod[0][0:x], ssro_mod[26]*np.ones(x), label='Control, Mod Front')
+            ax2.plot(stepResultsMod[0][0:x], ssro_mod[27]*np.ones(x), label='Control, Mod Rear')
             #ax1.plot(XMod, YMod, label='Mod')
             ax2.set_ylabel('Combined Wheel and Tire Motion (mm)')
             ax2.set_xlabel('(Max Values); Front, Base:' + str(round(max(stepResults[32]),1)) + '/ Rear, Base:' + str(round(max(stepResults[33]),1)) +
@@ -1201,26 +1222,26 @@ if __name__ == '__main__':
             ax6.plot(stepResults[0][0:x], stepResults[13][0:x], label = 'Rear, Base')
             ax6.plot(stepResultsMod[0][0:x], stepResultsMod[12][0:x], label = 'Front, Mod')
             ax6.plot(stepResultsMod[0][0:x], stepResultsMod[13][0:x], label = 'Rear, Mod')
-            ax6.plot(stepResultsMod[0][0:x], SSRO[9]*np.ones(x), label='Control, Front Base')
-            ax6.plot(stepResultsMod[0][0:x], SSROMod[9]*np.ones(x), label='Control, Front Mod')
-            ax6.plot(stepResultsMod[0][0:x], SSRO[10]*np.ones(x), label='Control, Rear Base')
-            ax6.plot(stepResultsMod[0][0:x], SSROMod[10]*np.ones(x), label='Control, Rear Mod')
+            ax6.plot(stepResultsMod[0][0:x], ssro[9]*np.ones(x), label='Control, Front Base')
+            ax6.plot(stepResultsMod[0][0:x], ssro_mod[9]*np.ones(x), label='Control, Front Mod')
+            ax6.plot(stepResultsMod[0][0:x], ssro[10]*np.ones(x), label='Control, Rear Base')
+            ax6.plot(stepResultsMod[0][0:x], ssro_mod[10]*np.ones(x), label='Control, Rear Mod')
             ax6.set_ylabel('Lateral Load Transfer (%)')
             ax6.set_xlabel('(Max Values); Front, Base:' + stepResults[25] + '/ Rear, Base:' + stepResults[26] +
                         '/ \n Front, Mod:' + stepResultsMod[25] +'/ Rear, Mod:' + stepResultsMod[26] +
-                        '\n (Overshoot %); Front, Base:' + str(round(100*max(stepResults[12]-50)/(SSRO[9]-50)-100,1)) + '/ Rear, Base:' + str(round(100*max(stepResults[13]-50)/(SSRO[10]-50)-100,1)) +
-                        '\n Front, Mod:' + str(round(100*max(stepResultsMod[12]-50)/(SSROMod[9]-50)-100,1)) + '/ Rear, Mod:' + str(round(100*max(stepResultsMod[13]-50)/(SSROMod[10]-50)-100,1)))
+                        '\n (Overshoot %); Front, Base:' + str(round(100*max(stepResults[12]-50)/(ssro[9]-50)-100,1)) + '/ Rear, Base:' + str(round(100*max(stepResults[13]-50)/(ssro[10]-50)-100,1)) +
+                        '\n Front, Mod:' + str(round(100*max(stepResultsMod[12]-50)/(ssro_mod[9]-50)-100,1)) + '/ Rear, Mod:' + str(round(100*max(stepResultsMod[13]-50)/(ssro_mod[10]-50)-100,1)))
             ax6.grid()
             leg5 = ax6.legend(loc=4)
 
             ax7.plot(stepResults[0][0:x], stepResults[14][0:x], label='Base')
             ax7.plot(stepResultsMod[0][0:x], stepResultsMod[14][0:x], label='Mod')
-            ax7.plot(stepResultsMod[0][0:x], SSRO[11]*np.ones(x), label='Control, Base')
-            ax7.plot(stepResultsMod[0][0:x], SSROMod[11]*np.ones(x), label='Control, Mod')
+            ax7.plot(stepResultsMod[0][0:x], ssro[11]*np.ones(x), label='Control, Base')
+            ax7.plot(stepResultsMod[0][0:x], ssro_mod[11]*np.ones(x), label='Control, Mod')
             ax7.set_ylabel('Lateral Load Transfer Ratio')
             ax7.set_xlabel('(Max Values); Base:' + str(round(max(stepResults[14]),3)) + '/ Mod:' + str(round(max(stepResultsMod[14]),3)) +
                         '\n (Min Values); Base:' + str(round(min(stepResults[14][0:x]),3)) + '/ Mod:' + str(round(min(stepResultsMod[14][0:x]),3)) +
-                        '\n (Error %); Base' + str(round(100*(SSRO[11]-stepResults[14][x-1])/SSRO[11],3)) + '/ Mod' + str(round(100*(SSROMod[11]-stepResultsMod[14][x-1])/SSROMod[11],3)))
+                        '\n (Error %); Base' + str(round(100*(ssro[11]-stepResults[14][x-1])/ssro[11],3)) + '/ Mod' + str(round(100*(ssro_mod[11]-stepResultsMod[14][x-1])/ssro_mod[11],3)))
             ax7.grid()
             leg6 = ax7.legend()
 
