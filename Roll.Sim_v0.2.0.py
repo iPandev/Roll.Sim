@@ -918,7 +918,7 @@ if __name__ == '__main__':
 
             DamperWindow.mainloop()
 
-        #STEP RESPONSE WINDOW________________________________________________________________________________________________
+        #TRANSIENT RESPONSE WINDOW________________________________________________________________________________________________
         def Resp3(f_type):
 
             StepWin = tk.Tk()
@@ -1093,7 +1093,8 @@ if __name__ == '__main__':
                 F_mod = np.zeros(n)
                 F_mod[start:n] = GforceMod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
             
-            #BIG TODO: we need to under stand if we're feeding in at-damper damper rates, or at-wheel damper rates.
+            #BIG TODO: we need to under stand if we're feeding in at-damper damper rates, or at-wheel damper rates for v6.
+            #I think we need to feed in at-wheel rates v6. Look at the SSRO inputs above.
             stepResults = RSF_transient_response_V(TWf, TWr,
                         FMotionRatioWD, RMotionRatioWD, FMotionRatioWS, RMotionRatioWS,
                         FDamperRateSB, RDamperRateSB, FDamperRateSR, RDamperRateSR,
@@ -1112,7 +1113,9 @@ if __name__ == '__main__':
                         FLSMassMod, FRSMassMod, RLSMassMod, RRSMassMod, FLUMassMod, FRUMassMod, RLUMassMod, RRUMassMod, RollInertiaMod,
                         TireKFMod, TireKRMod, TireDFMod, TireDRMod, CMHeightMod, FRCHeightMod, RRCHeightMod, F_mod, s)
 
-            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(20,11))
+            plt.rcParams.update({'font.size': 7})
+
+            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(18,9))
             fig2.suptitle('Lateral G Step Response (0-500ms)')
 
             x = len(stepResults[1])-1
@@ -1221,7 +1224,7 @@ if __name__ == '__main__':
             ax7.grid()
             leg6 = ax7.legend()
 
-            canvas = FigureCanvasTkAgg(fig2, master = StepWin)   
+            canvas = FigureCanvasTkAgg(fig2, master = StepWin)
             canvas.draw() 
             canvas.get_tk_widget().pack()
 
