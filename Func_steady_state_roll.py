@@ -1,18 +1,19 @@
 import math
 
-def RSF_steady_state(fWeightDist, cmHeight, frcHeight, rrcHeight,
-                           fWheelRate, rWheelRate, sprungMass, fUnsprungMass, rUnsprungMass, Gforce, TWf, TWr, #unsprung input added
-                           ARBRateF, ARBRateR, FMotionRatioWS, RMotionRatioWS, FMotionRatioDS, RMotionRatioDS,
-                           aeroLoadF, aeroLoadR,
-                           rollinertia,
-                           damp1, damp2, damp3, damp4, damp5, damp6, damp7, damp8,
-                           tireDiameterF, tireDiameterR, fTireK, rTireK): #added
+def RSF_steady_state(
+    fWeightDist, cmHeight, frcHeight, rrcHeight,
+    fWheelRate, rWheelRate, sprungMass, fUnsprungMass, rUnsprungMass, Gforce, TWf, TWr,
+    ARBRateF, ARBRateR, FMotionRatioWS, RMotionRatioWS, FMotionRatioDS, RMotionRatioDS,
+    aeroLoadF, aeroLoadR,
+    rollinertia,
+    damp1, damp2, damp3, damp4, damp5, damp6, damp7, damp8,
+    tireDiameterF, tireDiameterR, fTireK, rTireK
+):
 
     fWeightDist = fWeightDist/100
     cmHeight = cmHeight*0.0254
     frcHeight = frcHeight*0.0254
     rrcHeight = rrcHeight*0.0254
-    #wheelBase = wheelBase*0.0254
     sprungMass = sprungMass/2.20462
     fSprungMass = fWeightDist*sprungMass
     rSprungMass = (1-fWeightDist)*sprungMass
@@ -34,8 +35,6 @@ def RSF_steady_state(fWeightDist, cmHeight, frcHeight, rrcHeight,
     TWr = TWr*0.0254
     tireDiameterF = tireDiameterF*0.0254
     tireDiameterR = tireDiameterR*0.0254
-    #fTireK = fTireK*4.44822/0.0254
-    #rTireK = rTireK*4.44822/0.0254
     
     #1.UNSPRUNG GEOMETRIC LOAD TRANSFER____________________________________________________________________________________________________________________________________________
     fUnsprungGeoLT = Gforce*9.80665*fUnsprungMass*(tireDiameterF/2)/(TWf) #N
