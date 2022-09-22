@@ -1,5 +1,3 @@
-#Incomplete and under construction. Roll.Sim_v0.2.0.py still uses this function's predecessor.
-
 import numpy as np
 import math
 from Func_virtual_track_conversion import RSF_virtual_track

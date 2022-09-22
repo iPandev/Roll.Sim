@@ -1,3 +1,7 @@
+"""
+The heart of Roll.Sim, this document contains the equations of motion describing the Roll.Sim vehicle model.
+"""
+
 # Sprung Mass DOFs
 
 def EOM_A_r_dd(

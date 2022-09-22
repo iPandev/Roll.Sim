@@ -15,6 +15,7 @@ from Func_wheel_damping_ratio import RSF_corner_damping_ratio
 from Func_weight_dist import RSF_weight_dist
 from Func_steady_state_roll import RSF_steady_state
 from Func_time_response_6 import RSF_transient_response_6
+from Func_standards import RSF_standards
 
 if __name__ == '__main__':
     print(f'Welcome to Roll.Sim {version}!')
@@ -27,7 +28,7 @@ if __name__ == '__main__':
 
     tk.Label(safety, wraplength=400, justify="center",
                 text="""Vehicle Response Simulator
-    Copyright (C) 2022 Ivan S. Pandevs
+    Copyright (C) 2022 Ivan S. Pandev
 
     Welcome! Roll.Sim is a highly experimental, limited, open-loop, as-yet unvalidated simulator of vehicle behavior, and only for academic purposes, with no guarantee whatsoever of its results correlating to real-world behavior. DO NOT apply changes to real-world vehicles based solely on Roll.Sim results. Doing so can result in damage to property, bodily injury, or death. By using Roll.Sim, you, the user, accept this risk and agree never to hold Roll.Sim’s creators responsible for such damages.
 
@@ -260,7 +261,9 @@ if __name__ == '__main__':
         eRRCornerUMassMod.grid(row=21, column=6)
         eRRCornerUMassMod.insert(0, "120")
 
-        tk.Label(root, text=" CM Height: ").grid(row=22,column=0)
+        #TODO: Do most engineers know the total or sprung CM height? If total, refactor to accept that as input.
+        #Alternatively, force the user to separate sprung/ unsprung CM height themselves...
+        tk.Label(root, text=" Sprung CM Height: ").grid(row=22,column=0)
         eCMHeight = tk.Entry(root, width=7)
         eCMHeight.grid(row=22, column=1)
         eCMHeight.insert(0, "19.5")
@@ -653,49 +656,49 @@ if __name__ == '__main__':
             tk.Label(BasicParamWindow, text='(Base/ Mod/ %)').grid(row=71, column=1)
 
             tk.Label(BasicParamWindow, text = ' Front Weight Transfer: ').grid(row=72, column=0)
-            tk.Label(BasicParamWindow, text = ssro[1] + '/ ' + ssro_mod[1] + '/ ' + str(round(100*(ssro_mod[9]-ssro[9])/ssro[9], 1))).grid(row=72, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[1], 1)}/ {round(ssro_mod[1], 1)}/ {round(100*(ssro_mod[1]-ssro[1])/ssro[1], 1)}').grid(row=72, column=1)
             tk.Label(BasicParamWindow, text = '%').grid(row=72, column=2)
             tk.Label(BasicParamWindow, text = ' Rear Weight Transfer: ').grid(row=73, column=0)
-            tk.Label(BasicParamWindow, text = ssro[2] + '/ ' + ssro_mod[2] + '/ ' + str(round(100*(ssro_mod[10]-ssro[10])/ssro[10], 1))).grid(row=73, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[2], 1)}/ {round(ssro_mod[2], 1)}/ {round(100*(ssro_mod[2]-ssro[2])/ssro[2], 1)}').grid(row=73, column=1)
             tk.Label(BasicParamWindow, text = '%').grid(row=73, column=2)
             tk.Label(BasicParamWindow, text = ' F/R Lateral Load Transfer Ratio: ').grid(row=74, column=0)
-            tk.Label(BasicParamWindow, text = ssro[3] + '/ ' + ssro_mod[3] + '/ ' + str(round(100*(ssro_mod[11]-ssro[11])/ssro[11], 1))).grid(row=74, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[3], 3)}/ {round(ssro_mod[3], 3)}/ {round(100*(ssro_mod[3]-ssro[3])/ssro[3], 3)}').grid(row=74, column=1)
             tk.Label(BasicParamWindow, text = '-/-').grid(row=74, column=2)
 
             tk.Label(BasicParamWindow, text='     ').grid(row=75, column=0)
 
             tk.Label(BasicParamWindow, text = ' Natural Roll Frequency: ').grid(row=76, column=0)
-            tk.Label(BasicParamWindow, text = ssro[17] + '/ ' + ssro_mod[17] + '/ ' + str(round(100*(ssro_mod[16]-ssro[16])/ssro[16], 1))).grid(row=76, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[8], 3)}/ {round(ssro_mod[8], 3)}/ {round(100*(ssro_mod[8]-ssro[8])/ssro[8], 1)}').grid(row=76, column=1)
             tk.Label(BasicParamWindow, text = 'hz').grid(row=76, column=2)
             tk.Label(BasicParamWindow, text = ' Roll Damping Ratio (Slow): ').grid(row=77, column=0)
-            tk.Label(BasicParamWindow, text = ssro[19] + '/ ' + ssro_mod[19] + '/ ' + str(round(100*(ssro_mod[18]-ssro[18])/ssro[18], 1))).grid(row=77, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[9], 3)}/ {round(ssro_mod[9], 3)}/ {round(100*(ssro_mod[9]-ssro[9])/ssro[9], 1)}').grid(row=77, column=1)
             tk.Label(BasicParamWindow, text = 'hz').grid(row=77, column=2)
             tk.Label(BasicParamWindow, text = ' Roll Damping Ratio (Fast): ').grid(row=78, column=0)
-            tk.Label(BasicParamWindow, text = ssro[21] + '/ ' + ssro_mod[21] + '/ ' + str(round(100*(ssro_mod[20]-ssro[20])/ssro[20], 1))).grid(row=78, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[10], 3)}/ {round(ssro_mod[10], 3)}/ {round(100*(ssro_mod[10]-ssro[10])/ssro[10], 1)}').grid(row=78, column=1)
             tk.Label(BasicParamWindow, text = 'hz').grid(row=78, column=2)
             tk.Label(BasicParamWindow, text = ' Damped Roll Frequency (Slow): ').grid(row=79, column=0)
-            tk.Label(BasicParamWindow, text = ssro[23] + '/ ' + ssro_mod[23] + '/ ' + str(round(100*(ssro_mod[22]-ssro[22])/ssro[22], 1))).grid(row=79, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[11], 3)}/ {round(ssro_mod[11], 3)}/ {round(100*(ssro_mod[11]-ssro[11])/ssro[11], 1)}').grid(row=79, column=1)
             tk.Label(BasicParamWindow, text = 'hz').grid(row=79, column=2)
             tk.Label(BasicParamWindow, text = ' Damped Roll Frequency (Fast): ').grid(row=80, column=0)
-            tk.Label(BasicParamWindow, text = ssro[25] + '/ ' + ssro_mod[25] + '/ ' + str(round(100*(ssro_mod[24]-ssro[24])/ssro[24], 1))).grid(row=80, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[12], 3)}/ {round(ssro_mod[12], 3)}/ {round(100*(ssro_mod[12]-ssro[12])/ssro[12], 1)}').grid(row=80, column=1)
             tk.Label(BasicParamWindow, text = 'hz').grid(row=80, column=2)
 
             tk.Label(BasicParamWindow, text='     ').grid(row=81, column=0)
 
             tk.Label(BasicParamWindow, text = ' Roll Angle (About Roll Axis): ').grid(row=82, column=0)
-            tk.Label(BasicParamWindow, text = ssro[0] + '/ ' + ssro_mod[0] + '/ ' + str(round(100*(ssro_mod[8]-ssro[8])/ssro[8], 1))).grid(row=82, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[0], 3)}/ {round(ssro_mod[0], 3)}/ {round(100*(ssro_mod[0]-ssro[0])/ssro[0], 1)}').grid(row=82, column=1)
             tk.Label(BasicParamWindow, text = 'deg').grid(row=82, column=2)
             tk.Label(BasicParamWindow, text = ' Front Spring Defl. from Rest: ').grid(row=83, column=0)
-            tk.Label(BasicParamWindow, text = ssro[4] + '/ ' + ssro_mod[4] + '/ ' + str(round(100*(ssro_mod[12]-ssro[12])/ssro[12], 1))).grid(row=83, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[4], 3)}/ {round(ssro_mod[4], 3)}/ {round(100*(ssro_mod[4]-ssro[4])/ssro[4], 1)}').grid(row=83, column=1)
             tk.Label(BasicParamWindow, text = 'in.').grid(row=83, column=2)
             tk.Label(BasicParamWindow, text = ' Front Damper Defl. from Rest: ').grid(row=84, column=0)
-            tk.Label(BasicParamWindow, text = ssro[6] + '/ ' + ssro_mod[6] + '/ ' + str(round(100*(ssro_mod[14]-ssro[14])/ssro[14], 1))).grid(row=84, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[6], 3)}/ {round(ssro_mod[6], 3)}/ {round(100*(ssro_mod[6]-ssro[6])/ssro[6], 1)}').grid(row=84, column=1)
             tk.Label(BasicParamWindow, text = 'in.').grid(row=84, column=2)
             tk.Label(BasicParamWindow, text = ' Rear Spring Defl. from Rest: ').grid(row=85, column=0)
-            tk.Label(BasicParamWindow, text = ssro[5] + '/ ' + ssro_mod[5] + '/ ' + str(round(100*(ssro_mod[13]-ssro[13])/ssro[13], 1))).grid(row=85, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[5], 3)}/ {round(ssro_mod[5], 3)}/ {round(100*(ssro_mod[5]-ssro[5])/ssro[5], 1)}').grid(row=85, column=1)
             tk.Label(BasicParamWindow, text = 'in.').grid(row=85, column=2)
             tk.Label(BasicParamWindow, text = ' Rear Damper Defl. from Rest: ').grid(row=86, column=0)
-            tk.Label(BasicParamWindow, text = ssro[7] + '/ ' + ssro_mod[7] + '/ ' + str(round(100*(ssro_mod[15]-ssro[15])/ssro[15], 1))).grid(row=86, column=1)
+            tk.Label(BasicParamWindow, text = f'{round(ssro[7], 3)}/ {round(ssro_mod[7], 3)}/ {round(100*(ssro_mod[7]-ssro[7])/ssro[7], 1)}').grid(row=86, column=1)
             tk.Label(BasicParamWindow, text = 'in.').grid(row=86, column=2)
 
             tk.Label(BasicParamWindow, text='     ').grid(row=99, column=0)
@@ -959,30 +962,30 @@ if __name__ == '__main__':
             FRMass = float(eFRCornerMass.get())
             RLMass = float(eRLCornerMass.get())
             RRMass = float(eRRCornerMass.get())
-            flusm = UnitValuePair(float(eFLCornerUMass.get()), 'lbs')
-            frusm = UnitValuePair(float(eFRCornerUMass.get()), 'lbs')
-            rlusm = UnitValuePair(float(eRLCornerUMass.get()), 'lbs')
-            rrusm = UnitValuePair(float(eRRCornerUMass.get()), 'lbs')
+            usm_fl = UnitValuePair(float(eFLCornerUMass.get()), 'lbs')
+            usm_fr = UnitValuePair(float(eFRCornerUMass.get()), 'lbs')
+            usm_rl = UnitValuePair(float(eRLCornerUMass.get()), 'lbs')
+            usm_rr = UnitValuePair(float(eRRCornerUMass.get()), 'lbs')
             FLMassMod = float(eFLCornerMassMod.get())
             FRMassMod = float(eFRCornerMassMod.get())
             RLMassMod = float(eRLCornerMassMod.get())
             RRMassMod = float(eRRCornerMassMod.get())
-            flusm_mod = UnitValuePair(float(eFLCornerUMassMod.get()), 'lbs')
-            frusm_mod = UnitValuePair(float(eFRCornerUMassMod.get()), 'lbs')
-            rlusm_mod = UnitValuePair(float(eRLCornerUMassMod.get()), 'lbs')
-            rrusm_mod = UnitValuePair(float(eRRCornerUMassMod.get()), 'lbs')
+            usm_fl_mod = UnitValuePair(float(eFLCornerUMassMod.get()), 'lbs')
+            usm_fr_mod = UnitValuePair(float(eFRCornerUMassMod.get()), 'lbs')
+            usm_rl_mod = UnitValuePair(float(eRLCornerUMassMod.get()), 'lbs')
+            usm_rr_mod = UnitValuePair(float(eRRCornerUMassMod.get()), 'lbs')
 
-            flsm = UnitValuePair(float(FLMass - flusm.value), 'lbs')
-            frsm = UnitValuePair(float(FRMass - frusm.value), 'lbs')
-            rlsm = UnitValuePair(float(RLMass - rlusm.value), 'lbs')
-            rrsm = UnitValuePair(float(RRMass - rrusm.value), 'lbs')
-            flsm_mod = UnitValuePair(float(FLMassMod - flusm_mod.value), 'lbs')
-            frsm_mod = UnitValuePair(float(FRMassMod - frusm_mod.value), 'lbs')
-            rlsm_mod = UnitValuePair(float(RLMassMod - rlusm_mod.value), 'lbs')
-            rrsm_mod = UnitValuePair(float(RRMassMod - rrusm_mod.value), 'lbs')
+            sm_fl = UnitValuePair(float(FLMass - usm_fl.value), 'lbs')
+            sm_fr = UnitValuePair(float(FRMass - usm_fr.value), 'lbs')
+            sm_rl = UnitValuePair(float(RLMass - usm_rl.value), 'lbs')
+            sm_rr = UnitValuePair(float(RRMass - usm_rr.value), 'lbs')
+            sm_fl_mod = UnitValuePair(float(FLMassMod - usm_fl_mod.value), 'lbs')
+            sm_fr_mod = UnitValuePair(float(FRMassMod - usm_fr_mod.value), 'lbs')
+            sm_rl_mod = UnitValuePair(float(RLMassMod - usm_rl_mod.value), 'lbs')
+            sm_rr_mod = UnitValuePair(float(RRMassMod - usm_rr_mod.value), 'lbs')
 
-            cg_height = UnitValuePair(float(eCMHeight.get()), 'in')
-            cg_height_mod = UnitValuePair(float(eCMHeightMod.get()), 'in')
+            sprung_CM_height = UnitValuePair(float(eCMHeight.get()), 'in')
+            sprung_CM_height_mod = UnitValuePair(float(eCMHeightMod.get()), 'in')
             rc_height_f = UnitValuePair(float(eRCHeightF.get()), 'in')
             rc_height_f_mod = UnitValuePair(float(eRCHeightFMod.get()), 'in')
             rc_height_r = UnitValuePair(float(eRCHeightR.get()), 'in')
@@ -991,8 +994,8 @@ if __name__ == '__main__':
             tw_f_mod = UnitValuePair(float(eFTWMod.get()), 'in')
             tw_r = UnitValuePair(float(eRTW.get()), 'in')
             tw_r_mod = UnitValuePair(float(eRTWMod.get()), 'in')
-            Gforce = float(eMaxG.get())
-            GforceMod = float(eMaxGMod.get())
+            g_force = float(eMaxG.get())
+            g_force_mod = float(eMaxGMod.get())
             
             Karb_f = UnitValuePair(float(eARBRateF.get()), 'lbf/in')
             Karb_f_mod = UnitValuePair(float(eARBRateFMod.get()), 'lbf/in')
@@ -1029,32 +1032,18 @@ if __name__ == '__main__':
             Ks_r = UnitValuePair(float(RRWheelRateResult[0]), 'lbf/in')
             Ks_r_mod = UnitValuePair(float(RRWheelRateResult[1]), 'lbf/in')
 
-            SprungWeightDistResult =  RSF_weight_dist(flsm.value, frsm.value, rlsm.value, rrsm.value, flsm_mod.value, frsm_mod.value, rlsm_mod.value, rrsm_mod.value)
-            FSprungWeightDist = SprungWeightDistResult[0]
-            FSprungWeightDistMod = SprungWeightDistResult[3]
-            TotalSprungMass = SprungWeightDistResult[18]
-            TotalSprungMassMod = SprungWeightDistResult[19]
-
-            ssro = RSF_steady_state(
-                FSprungWeightDist, cg_height.value, rc_height_f.value, rc_height_r.value,
-                Ks_f.value, Ks_r.value, TotalSprungMass, flusm.value+frusm.value, rlusm.value+rrusm.value, Gforce, tw_f.value, tw_r.value,
-                Karb_f.value, Karb_r.value, WS_motion_ratio_f, WS_motion_ratio_r, WD_motion_ratio_f, WD_motion_ratio_r,
-                aero_load_f.value, aero_load_r.value, roll_inertia.value,
-                (Csb_f/(WD_motion_ratio_f**2)), (Csr_f/(WD_motion_ratio_f**2)), (Csb_r/(WD_motion_ratio_r**2)), (Csr_r/(WD_motion_ratio_r**2)),
-                (Cfb_f/(WD_motion_ratio_f**2)), (Cfr_f/(WD_motion_ratio_f**2)), (Cfb_r/(WD_motion_ratio_r**2)), (Cfr_r/(WD_motion_ratio_r**2)),
-                tire_diam_f.value, tire_diam_r.value, Kt_f.value, Kt_r.value 
+            standards = RSF_standards(
+                tw_f.metric(), tw_r.metric(), g_force, sprung_CM_height.metric(),
+                sm_fr.metric(), sm_fl.metric(), sm_rr.metric(), sm_rl.metric(), usm_fr.metric(), usm_fl.metric(), usm_rr.metric(), usm_rl.metric(),
+                tire_diam_f.metric(), tire_diam_r.metric(), aero_load_f.metric(), aero_load_r.metric()
             )
 
-            ssro_mod = RSF_steady_state(
-                FSprungWeightDistMod, cg_height_mod.value, rc_height_f_mod.value, rc_height_r_mod.value,
-                Ks_f_mod.value, Ks_r_mod.value, TotalSprungMassMod, flusm_mod.value+frusm_mod.value, rlusm_mod.value+rrusm_mod.value, GforceMod, tw_f_mod.value, tw_r_mod.value,
-                Karb_f_mod.value, Karb_r_mod.value, WS_motion_ratio_f_mod, WS_motion_ratio_r_mod, WD_motion_ratio_f_mod, WD_motion_ratio_r_mod,
-                aero_load_f_mod.value, aero_load_r_mod.value, roll_inertia_mod.value,
-                (Csb_f_mod/(WD_motion_ratio_f_mod**2)), (Csr_f_mod/(WD_motion_ratio_f_mod**2)), (Csb_r_mod/(WD_motion_ratio_r_mod**2)), (Csr_r_mod/(WD_motion_ratio_r_mod**2)),
-                (Cfb_f_mod/(WD_motion_ratio_f_mod**2)), (Cfr_f_mod/(WD_motion_ratio_f_mod**2)), (Cfb_r_mod/(WD_motion_ratio_r_mod**2)), (Cfr_r_mod/(WD_motion_ratio_r_mod**2)),
-                tire_diam_f_mod.value, tire_diam_r_mod.value, Kt_f_mod.value, Kt_r_mod.value
+            standards_mod = RSF_standards(
+                tw_f_mod.metric(), tw_r_mod.metric(), g_force_mod, sprung_CM_height_mod.metric(),
+                sm_fr_mod.metric(), sm_fl_mod.metric(), sm_rr_mod.metric(), sm_rl_mod.metric(), usm_fr_mod.metric(), usm_fl_mod.metric(), usm_rr_mod.metric(), usm_rl_mod.metric(),
+                tire_diam_f_mod.metric(), tire_diam_r_mod.metric(), aero_load_f_mod.metric(), aero_load_r_mod.metric()
             )
-            
+
             segments=10*(0.1+seconds) #how many 0.1s segments are there?
             n=10000
             
@@ -1062,33 +1051,33 @@ if __name__ == '__main__':
             if f_type == 1: #step
                 force_function = np.zeros(n)
                 start = int(round(n/segments, 0))
-                force_function[start:n] = Gforce
+                force_function[start:n] = g_force 
                 force_function_mod = np.zeros(n)
-                force_function_mod[start:n] = GforceMod
+                force_function_mod[start:n] = g_force_mod
             elif f_type == 2: #ramp
                 force_function = np.zeros(n)
                 start = int(round(n/segments, 0))
                 ramp = int(round((rampT*10+1)*n/segments, 0))
-                force_function[start:ramp] = np.linspace(0, Gforce, abs(start-ramp))
-                force_function[ramp:n] = Gforce
+                force_function[start:ramp] = np.linspace(0, g_force, abs(start-ramp))
+                force_function[ramp:n] = g_force
                 force_function_mod = np.zeros(n)
                 rampMod = int(round((rampTMod*10+1)*n/segments, 0))
-                force_function_mod[start:rampMod] = np.linspace(0, GforceMod, abs(start-rampMod))
-                force_function_mod[rampMod:n] = GforceMod
+                force_function_mod[start:rampMod] = np.linspace(0, g_force_mod, abs(start-rampMod))
+                force_function_mod[rampMod:n] = g_force_mod
             elif f_type == 3: #sin
                 force_function = np.zeros(n)
                 start = int(round(n/segments, 0))
-                force_function[start:n] = Gforce*np.sin(np.linspace(0, np.pi*2*p, abs(start-n)))
+                force_function[start:n] = g_force*np.sin(np.linspace(0, np.pi*2*p, abs(start-n)))
                 force_function_mod = np.zeros(n)
-                force_function_mod[start:n] = GforceMod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
+                force_function_mod[start:n] = g_force_mod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
                         
             results = RSF_transient_response_6(
                 force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
                 tw_f.metric(), tw_r.metric(), Ks_f.metric(), Ks_r.metric(), Karb_f.metric(), Karb_r.metric(), #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) wheel rates
                 Csb_f/(WD_motion_ratio_f**2), Csr_f/(WD_motion_ratio_f**2), Cfb_f/(WD_motion_ratio_f**2), Cfr_f/(WD_motion_ratio_f**2), Csb_r/(WD_motion_ratio_r**2), Csr_r/(WD_motion_ratio_r**2), Cfb_r/(WD_motion_ratio_r**2), Cfr_r/(WD_motion_ratio_r**2), #at-wheel damper rates(N/(m/s))
                 bypassV_fb, bypassV_fr, bypassV_rb, bypassV_rr, #damper bypass speeds (m/s)
-                flsm.metric(), frsm.metric(), rlsm.metric(), rrsm.metric(), flusm.metric(), frusm.metric(), rlusm.metric(), rrusm.metric(), roll_inertia.metric(), #masses (kg) and rotating inertia (kg*m**2)
-                cg_height.metric(), rc_height_f.metric(), rc_height_r.metric(), tire_diam_f.metric(), tire_diam_r.metric(), #suspension geometries (m)
+                sm_fl.metric(), sm_fr.metric(), sm_rl.metric(), sm_rr.metric(), usm_fl.metric(), usm_fr.metric(), usm_rl.metric(), usm_rr.metric(), roll_inertia.metric(), #masses (kg) and rotating inertia (kg*m**2)
+                sprung_CM_height.metric(), rc_height_f.metric(), rc_height_r.metric(), tire_diam_f.metric(), tire_diam_r.metric(), #suspension geometries (m)
                 WS_motion_ratio_f, WS_motion_ratio_r, WD_motion_ratio_f, WD_motion_ratio_r, #Wheel/spring or Wheel/damper motion ratios
                 Kt_f.metric(), Kt_r.metric(), #tire spring rates (N/m)
                 aero_load_f.metric(), aero_load_r.metric() #aerodynamic forces (N)
@@ -1099,8 +1088,8 @@ if __name__ == '__main__':
                 tw_f_mod.metric(), tw_r_mod.metric(), Ks_f_mod.metric(), Ks_r_mod.metric(), Karb_f_mod.metric(), Karb_r_mod.metric(), #track widths(m), coil(N/m) and ARB(N/m, l-r relative displacement) wheel rates
                 Csb_f_mod/(WD_motion_ratio_f_mod**2), Csr_f_mod/(WD_motion_ratio_f_mod**2), Cfb_f_mod/(WD_motion_ratio_f_mod**2), Cfr_f_mod/(WD_motion_ratio_f_mod**2), Csb_r_mod/(WD_motion_ratio_r_mod**2), Csr_r_mod/(WD_motion_ratio_r_mod**2), Cfb_r_mod/(WD_motion_ratio_r_mod**2), Cfr_r_mod/(WD_motion_ratio_r_mod**2), #at-wheel damper rates(N/(m/s))
                 bypassV_fb_mod, bypassV_fr_mod, bypassV_rb_mod, bypassV_rr_mod, #damper bypass speeds (m/s)
-                flsm_mod.metric(), frsm_mod.metric(), rlsm_mod.metric(), rrsm_mod.metric(), flusm_mod.metric(), frusm_mod.metric(), rlusm_mod.metric(), rrusm_mod.metric(), roll_inertia_mod.metric(), #masses (kg) and rotating inertia (kg*m**2)
-                cg_height_mod.metric(), rc_height_f_mod.metric(), rc_height_r_mod.metric(), tire_diam_f_mod.metric(), tire_diam_r_mod.metric(), #suspension geometries (m)
+                sm_fl_mod.metric(), sm_fr_mod.metric(), sm_rl_mod.metric(), sm_rr_mod.metric(), usm_fl_mod.metric(), usm_fr_mod.metric(), usm_rl_mod.metric(), usm_rr_mod.metric(), roll_inertia_mod.metric(), #masses (kg) and rotating inertia (kg*m**2)
+                sprung_CM_height_mod.metric(), rc_height_f_mod.metric(), rc_height_r_mod.metric(), tire_diam_f_mod.metric(), tire_diam_r_mod.metric(), #suspension geometries (m)
                 WS_motion_ratio_f_mod, WS_motion_ratio_r_mod, WD_motion_ratio_f_mod, WD_motion_ratio_r_mod, #Wheel/spring or Wheel/damper motion ratios
                 Kt_f_mod.metric(), Kt_r_mod.metric(), #tire spring rates (N/m)
                 aero_load_f_mod.metric(), aero_load_r_mod.metric() #aerodynamic forces (N)
@@ -1108,7 +1097,7 @@ if __name__ == '__main__':
 
             plt.rcParams.update({'font.size': 7})
 
-            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(17,10))
+            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(18,9.25))
             fig2.suptitle(f'Lateral G Response (0-{seconds*1000}ms)')
 
             x = len(results[1])
@@ -1117,7 +1106,7 @@ if __name__ == '__main__':
             ax0.plot(results_mod[0], force_function_mod[0:x], label='Mod')
             ax0.plot(0.5, 1, 'x')
             ax0.set_ylabel('Lateral Force Function (G)')
-            ax0.set_xlabel(f'(Max Values); Base:{Gforce} / Mod:{GforceMod}')
+            ax0.set_xlabel(f'(Max Values); Base:{g_force} / Mod:{g_force_mod}')
             ax0.grid()
             ax0.legend(loc=4)
             
@@ -1180,6 +1169,8 @@ if __name__ == '__main__':
             ax5.grid()
             ax5.legend(loc=4)
 
+            ax6.axhline(y = standards[1], label='Control (RECR), Base', color = 'black')
+            ax6.axhline(y = standards_mod[1], label='Control (RECR), Mod', color = 'grey')
             ax6.plot(results[0], results[17], label='Front, Base')
             ax6.plot(results[0], results[18], label='Rear, Base')
             ax6.plot(results_mod[0], results_mod[17], label='Front, Mod')

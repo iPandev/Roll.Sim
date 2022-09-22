@@ -1,3 +1,5 @@
+#TODO: This part of Roll.Rim needs a serious refactor to be consistent with the EQS of motion that define the Roll.Sim model.
+
 import math
 
 def RSF_steady_state(
@@ -36,27 +38,27 @@ def RSF_steady_state(
     tireDiameterF = tireDiameterF*0.0254
     tireDiameterR = tireDiameterR*0.0254
     
-    #1.UNSPRUNG GEOMETRIC LOAD TRANSFER____________________________________________________________________________________________________________________________________________
+    #1.UNSPRUNG GEOMETRIC LOAD TRANSFER
     fUnsprungGeoLT = Gforce*9.80665*fUnsprungMass*(tireDiameterF/2)/(TWf) #N
-    rUnsprungGeoLT = Gforce*9.80665*rUnsprungMass*(tireDiameterR/2)/(TWr) #new differential of forces, absolute value added to outside wheel is half. This is correct.
+    rUnsprungGeoLT = Gforce*9.80665*rUnsprungMass*(tireDiameterR/2)/(TWr) #N Absolute value added to outside wheel.
     
-    #2.SPRUNG GEOMETRIC LOAD TRANSFER______________________________________________________________________________________________________________________________________________
+    #2.SPRUNG GEOMETRIC LOAD TRANSFER
     fSprungGeoLT = Gforce*9.80665*fSprungMass*frcHeight/(TWf) #N
     rSprungGeoLT = Gforce*9.80665*rSprungMass*rrcHeight/(TWr) 
     
-    #3.ELASTIC ROLL ANGLE__________________________________________________________________________________________________________________________________________________________
+    #3.ELASTIC ROLL ANGLE
     rcm = frcHeight*(fWeightDist)+rrcHeight*(1-fWeightDist) #m
     elasticRollAngle = math.atan(0.5*Gforce*9.80665*sprungMass*(cmHeight-rcm)/(fCombinedRate*(TWf**2)/4+rCombinedRate*(TWr**2)/4))#in rad
     
-    #4.SPRUNG ELASTIC LOAD TRANSFER________________________________________________________________________________________________________________________________________________
+    #4.SPRUNG ELASTIC LOAD TRANSFER
     fElasticLT = fCombinedRate*math.tan(elasticRollAngle)*TWf/2 #ABSOLUTE force transferred to outside wheel, this is correct since TWf is halved
     rElasticLT = rCombinedRate*math.tan(elasticRollAngle)*TWr/2
     
-    #5.TIRE DEFLECTION_____________________________________________________________________________________________________________________________________________________________
+    #5.TIRE DEFLECTION
     fTireDeflection = (fUnsprungGeoLT/2 + fSprungGeoLT/2 + fElasticLT)/fTireK
     rTireDeflection = (rUnsprungGeoLT/2 + rSprungGeoLT/2 + rElasticLT)/rTireK
     
-    #6.SPRING DEFLECTION___________________________________________________________________________________________________________________________________________________________
+    #6.SPRING DEFLECTION
     fWheelDeflection = fElasticLT/fCombinedRate
     fWheelDeflectionCheck = math.tan(elasticRollAngle)*TWf/2 #Note the use of elastic roll angle, not total
     rWheelDeflection = rElasticLT/rCombinedRate
@@ -66,100 +68,64 @@ def RSF_steady_state(
     RSpringTravelFromRest = rWheelDeflection/RMotionRatioWS/.0254
     FDamperTravelFromRest = fWheelDeflection/FMotionRatioDS/.0254
     RDamperTravelFromRest = rWheelDeflection/RMotionRatioDS/.0254
-    FSpringTravelFromRestSTR = str(round(FSpringTravelFromRest, 3))
-    RSpringTravelFromRestSTR = str(round(RSpringTravelFromRest, 3))
-    FDamperTravelFromRestSTR = str(round(FDamperTravelFromRest, 3))
-    RDamperTravelFromRestSTR = str(round(RDamperTravelFromRest, 3))
     
-    #7A.CHASSIS ROLL ANGLE__________________________________________________________________________________________________________________________________________________________
+    #7A.CHASSIS ROLL ANGLE
     ra1 = math.atan(fWheelDeflection/(TWf/2))
     ra2 = math.atan(rWheelDeflection/(TWr/2))
     chassisRollAngle = (ra1+ra2)/2 #rad
     rollAngleDeg = 180*(chassisRollAngle)/math.pi
-    rollAngleDegSTR = str(round(rollAngleDeg, 3))
-    #totalRollAngleCheck = 
     
-    #7B.TOTAL ROLL ANGLE____________________________________________________________________________________________________________________________________________________________
+    #7B.TOTAL ROLL ANGLE
     tra1 = math.atan((fWheelDeflection+fTireDeflection)/(TWf/2))
     tra2 = math.atan((rWheelDeflection+rTireDeflection)/(TWr/2))
     totalRollAngle = (tra1+tra2)/2 #rad
     #rollAngleDeg = 180*(totalRollAngle)/math.pi
     #rollAngleDegSTR = str(round(rollAngleDeg, 3))
     
-    #8.COMBINED LOAD TRASNFRS AND LLTR______________________________________________________________________________________________________________________________________________
-    fLLT = (100)*((fUnsprungMass+fSprungMass)*9.80665/2 + aeroLoadF/2 + fUnsprungGeoLT/2 + fSprungGeoLT/2 + fElasticLT)/((fUnsprungMass+fSprungMass)*9.80665+aeroLoadF)
-    rLLT = (100)*((rUnsprungMass+rSprungMass)*9.80665/2 + aeroLoadR/2 + rUnsprungGeoLT/2 + rSprungGeoLT/2 + rElasticLT)/((rUnsprungMass+rSprungMass)*9.80665+aeroLoadR)
-    print(fUnsprungGeoLT, fSprungGeoLT, fElasticLT, fTireDeflection, fWheelDeflection, rTireDeflection, rWheelDeflection)
-    LLTR = fLLT/rLLT
-    fLLTSTR = str(round(fLLT, 1))
-    rLLTSTR = str(round(rLLT, 1))
-    LLTRSTR = str(round(LLTR, 3))
+    #8.COMBINED LOAD TRASNFRS AND LLTR
+    LLT_f = (100)*((fUnsprungMass+fSprungMass)*9.80665/2 + aeroLoadF/2 + fUnsprungGeoLT/2 + fSprungGeoLT/2 + fElasticLT)/((fUnsprungMass+fSprungMass)*9.80665+aeroLoadF)
+    LLT_r = (100)*((rUnsprungMass+rSprungMass)*9.80665/2 + aeroLoadR/2 + rUnsprungGeoLT/2 + rSprungGeoLT/2 + rElasticLT)/((rUnsprungMass+rSprungMass)*9.80665+aeroLoadR)
+    LLT_ratio = LLT_f/LLT_r
     
-    #9.NAT ROLL FREQUENCY___________________________________________________________________________________________________________________________________________________________
+    #9.NAT ROLL FREQUENCY
     rollinertia = rollinertia*0.453592/(39.3701**2)
     virtualInertialMass = rollinertia/(((TWf/2+TWr/2)/2)**2)
     NatRollFreq = (1/(2*math.pi))*math.sqrt((fCombinedRate+rCombinedRate)/(virtualInertialMass/2))
-    NatRollFreqSTR = str(round(NatRollFreq, 3))
     
     #INCLUDE OPTIMUM G TECH TIP METHOD AS A CHECK w=1/(2pi)*sqrt(180K/piI)
     
-    #10.ROLL DAMP RATIOS____________________________________________________________________________________________________________________________________________________________
+    #10.ROLL DAMP RATIOS
     Ccr = 2*math.sqrt((fCombinedRate+rCombinedRate)*virtualInertialMass/2)
     Cs = (damp1 + damp2 + damp3 + damp4)/2
     Cf = (damp5 + damp6 + damp7 + damp8)/2
     dampingRatioSlow = Cs/Ccr
-    dampingRatioSlowSTR = str(round(dampingRatioSlow, 3))
     dampingRatioFast = Cf/Ccr
-    dampingRatioFastSTR = str(round(dampingRatioFast, 3))
     
-    #11.DAMPED ROLL FREQENCY________________________________________________________________________________________________________________________________________________________
+    #11.DAMPED ROLL FREQENCY
     if dampingRatioSlow < 1:
         dampedRollFreqSlow = NatRollFreq*math.sqrt(1-dampingRatioSlow**2)
-        dampedRollFreqSlowSTR = str(round(dampedRollFreqSlow, 3))
     else:
         dampedRollFreqSlow = 1
-        dampedRollFreqSlowSTR = 'na'
         
     if dampingRatioFast < 1:
         dampedRollFreqFast = NatRollFreq*math.sqrt(1-dampingRatioFast**2)
-        dampedRollFreqFastSTR = str(round(dampedRollFreqFast, 3))
     else:
         dampedRollFreqFast = 1
-        dampedRollFreqFastSTR = 'na'
     
-    return(rollAngleDegSTR, #0
-           fLLTSTR, #1
-           rLLTSTR, #2
-           LLTRSTR, #3
-           FSpringTravelFromRestSTR, #4
-           RSpringTravelFromRestSTR, #5
-           FDamperTravelFromRestSTR, #6
-           RDamperTravelFromRestSTR, #7
-           rollAngleDeg, #8
-           fLLT, #9
-           rLLT, #10
-           LLTR, #11
-           FSpringTravelFromRest, #12
-           RSpringTravelFromRest, #13
-           FDamperTravelFromRest, #14
-           RDamperTravelFromRest, #15
-           #
-           NatRollFreq, #16
-           NatRollFreqSTR, #17
-           dampingRatioSlow, #18
-           dampingRatioSlowSTR, #19
-           dampingRatioFast, #20
-           dampingRatioFastSTR, #21
-           dampedRollFreqSlow, #22
-           dampedRollFreqSlowSTR, #23
-           dampedRollFreqFast, #24
-           dampedRollFreqFastSTR, #25
-           1000*(fWheelDeflection+fTireDeflection), #26
-           1000*(rWheelDeflection+rTireDeflection), #27
-           #TroubleshootingVars
-           Ccr, #28
-           fWheelDeflection,
-           fWheelDeflectionCheck,
-           tra1*180/3.14,
-           tra2*180/3.14
-          )
+    return(
+        rollAngleDeg, #0
+        LLT_f, #1
+        LLT_r, #2
+        LLT_ratio, #3
+        FSpringTravelFromRest, #12, 4
+        RSpringTravelFromRest, #13, 5
+        FDamperTravelFromRest, #14, 6
+        RDamperTravelFromRest, #15, 7
+        NatRollFreq, #16, 8
+        dampingRatioSlow, #18, 9
+        dampingRatioFast, #20, 10
+        dampedRollFreqSlow, #22, 11
+        dampedRollFreqFast, #24, 12
+        1000*(fWheelDeflection+fTireDeflection), #26, 13
+        1000*(rWheelDeflection+rTireDeflection), #27, 14
+    )
