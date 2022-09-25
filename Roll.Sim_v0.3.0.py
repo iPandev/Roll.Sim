@@ -16,6 +16,7 @@ from Func_weight_dist import RSF_weight_dist
 from Func_steady_state_roll import RSF_steady_state
 from Func_time_response_6 import RSF_transient_response_6
 from Func_standards import RSF_standards
+from Func_force_function import RSF_force_function
 
 if __name__ == '__main__':
     print(f'Welcome to Roll.Sim {version}!')
@@ -1019,10 +1020,10 @@ if __name__ == '__main__':
             roll_inertia_mod = UnitValuePair(float(eRollInertiaMod.get()), 'lbs*in^2')
             
             seconds = float(eSec.get())
-            rampT = float(eRampT.get())
-            rampTMod = float(eRampTMod.get())
-            p = float(eSinT.get())
-            pMod = float(eSinTMod.get())
+            ramp_time = float(eRampT.get())
+            ramp_time_mod = float(eRampTMod.get())
+            period = float(eSinT.get())
+            period_mod = float(eSinTMod.get())
 
             FRWheelRateResult = RSF_wheel_rate(FSpringRate,WS_motion_ratio_f,FSpringRateMod, WS_motion_ratio_f_mod)
             Ks_f = UnitValuePair(float(FRWheelRateResult[0]), 'lbf/in')
@@ -1047,33 +1048,10 @@ if __name__ == '__main__':
                 Ks_f_mod.metric(), Ks_r_mod.metric(), Karb_f_mod.metric(), Karb_r_mod.metric(),
                 sprung_CM_height_mod.metric() - rc_height_f_mod.metric()
             )
-
-            segments=10*(0.1+seconds) #how many 0.1s segments are there?
-            n=10000
             
-            #Force Function definitions can be better packaged in function.py file, imported to the main
-            if f_type == 1: #step
-                force_function = np.zeros(n)
-                start = int(round(n/segments, 0))
-                force_function[start:n] = g_force 
-                force_function_mod = np.zeros(n)
-                force_function_mod[start:n] = g_force_mod
-            elif f_type == 2: #ramp
-                force_function = np.zeros(n)
-                start = int(round(n/segments, 0))
-                ramp = int(round((rampT*10+1)*n/segments, 0))
-                force_function[start:ramp] = np.linspace(0, g_force, abs(start-ramp))
-                force_function[ramp:n] = g_force
-                force_function_mod = np.zeros(n)
-                rampMod = int(round((rampTMod*10+1)*n/segments, 0))
-                force_function_mod[start:rampMod] = np.linspace(0, g_force_mod, abs(start-rampMod))
-                force_function_mod[rampMod:n] = g_force_mod
-            elif f_type == 3: #sin
-                force_function = np.zeros(n)
-                start = int(round(n/segments, 0))
-                force_function[start:n] = g_force*np.sin(np.linspace(0, np.pi*2*p, abs(start-n)))
-                force_function_mod = np.zeros(n)
-                force_function_mod[start:n] = g_force_mod*np.sin(np.linspace(0, np.pi*2*pMod, abs(start-n)))
+            force_function, force_function_mod = RSF_force_function(
+                seconds, f_type, g_force, g_force_mod, ramp_time, ramp_time_mod, period, period_mod, './telemetry/target.csv'
+            )
                         
             results = RSF_transient_response_6(
                 force_function, seconds, #Force function(Gs, w.r.t. time) and duration(s)
