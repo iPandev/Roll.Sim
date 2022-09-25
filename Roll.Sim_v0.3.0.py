@@ -1049,7 +1049,7 @@ if __name__ == '__main__':
                 sprung_CM_height_mod.metric() - rc_height_f_mod.metric()
             )
             
-            force_function, force_function_mod = RSF_force_function(
+            force_function, force_function_mod, seconds = RSF_force_function(
                 seconds, f_type, g_force, g_force_mod, ramp_time, ramp_time_mod, period, period_mod, './telemetry/target.csv'
             )
                         
@@ -1079,7 +1079,7 @@ if __name__ == '__main__':
 
             plt.rcParams.update({'font.size': 7})
 
-            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(16,8))
+            fig2, ([[ax0, ax1], [ax2, ax3], [ax4, ax5], [ax6, ax7]]) = plt.subplots(nrows=4, ncols=2, figsize=(18,10))
             fig2.suptitle(f'Lateral G Response (0-{seconds*1000}ms)')
 
             x = len(results[1])
@@ -1152,16 +1152,26 @@ if __name__ == '__main__':
             ax5.grid()
             ax5.legend(loc=4)
 
-            ax6.axhline(y = standards[1], label='Control (RECR), Base', color = 'black')
-            ax6.axhline(y = standards_mod[1], label='Control (RECR), Mod', color = 'grey')
-            ax6.plot(results[0], results[17], label='Front, Base')
-            ax6.plot(results[0], results[18], label='Rear, Base')
-            ax6.plot(results_mod[0], results_mod[17], label='Front, Mod')
-            ax6.plot(results_mod[0], results_mod[18], label='Rear, Mod')
-            ax6.set_ylabel('Lateral Load Transfer (% Outside)')
-            ax6.set_xlabel('Test')
-            ax6.grid()
-            ax6.legend(loc=4)
+            if f_type == 4:
+                ax6.axhline(y = standards[1], label='Control (RECR), Base', color = 'black')
+                ax6.axhline(y = standards_mod[1], label='Control (RECR), Mod', color = 'grey')
+                ax6.plot(results[0], (results[17]+results[18])/2, label='F/R avg, Base', color = 'red')
+                ax6.plot(results_mod[0], (results_mod[17]+results_mod[18])/2, label='F/R avg, Mod', color = 'blue')
+                ax6.set_ylabel('Lateral Load Transfer (% Outside)')
+                ax6.set_xlabel('Test')
+                ax6.grid()
+                ax6.legend(loc=4)
+            else:
+                ax6.axhline(y = standards[1], label='Control (RECR), Base', color = 'black')
+                ax6.axhline(y = standards_mod[1], label='Control (RECR), Mod', color = 'grey')
+                ax6.plot(results[0], results[17], label='Front, Base')
+                ax6.plot(results[0], results[18], label='Rear, Base')
+                ax6.plot(results_mod[0], results_mod[17], label='Front, Mod')
+                ax6.plot(results_mod[0], results_mod[18], label='Rear, Mod')
+                ax6.set_ylabel('Lateral Load Transfer (% Outside)')
+                ax6.set_xlabel('Test')
+                ax6.grid()
+                ax6.legend(loc=4)
 
             ax7.plot(results[0], results[19], label='Base')
             ax7.plot(results_mod[0], results_mod[19], label='Mod')
@@ -1260,7 +1270,10 @@ if __name__ == '__main__':
         DamperPlotButton = tk.Button(root, fg='blue', text = "Roll Response (Sin)", command = lambda: Resp3(3), width=16)
         DamperPlotButton.grid(row=136, column=0)
 
-        LabelM = tk.Label(root, text='     ').grid(row=137, column=0)
+        DamperPlotButton = tk.Button(root, fg='blue', text = "Telemetry Response", command = lambda: Resp3(4), width=16)
+        DamperPlotButton.grid(row=137, column=0)
+
+        LabelM = tk.Label(root, text='     ').grid(row=138, column=0)
         
         root.mainloop()
 
