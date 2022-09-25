@@ -1,5 +1,7 @@
 import numpy as np
 import math
+import time
+
 from Func_virtual_track_conversion import RSF_virtual_track
 from Func_update_damper_domain_2 import RSF_update_damper_domain_2
 from Func_eqs_of_motion import EOM_A_r_dd, EOM_A_l_dd, EOM_B_fr_dd, EOM_B_fl_dd, EOM_B_rr_dd, EOM_B_rl_dd

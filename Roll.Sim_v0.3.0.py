@@ -1035,13 +1035,17 @@ if __name__ == '__main__':
             standards = RSF_standards(
                 tw_f.metric(), tw_r.metric(), g_force, sprung_CM_height.metric(),
                 sm_fr.metric(), sm_fl.metric(), sm_rr.metric(), sm_rl.metric(), usm_fr.metric(), usm_fl.metric(), usm_rr.metric(), usm_rl.metric(),
-                tire_diam_f.metric(), tire_diam_r.metric(), aero_load_f.metric(), aero_load_r.metric()
+                tire_diam_f.metric(), tire_diam_r.metric(), aero_load_f.metric(), aero_load_r.metric(),
+                Ks_f.metric(), Ks_r.metric(), Karb_f.metric(), Karb_r.metric(),
+                sprung_CM_height.metric() - rc_height_f.metric()
             )
 
             standards_mod = RSF_standards(
                 tw_f_mod.metric(), tw_r_mod.metric(), g_force_mod, sprung_CM_height_mod.metric(),
                 sm_fr_mod.metric(), sm_fl_mod.metric(), sm_rr_mod.metric(), sm_rl_mod.metric(), usm_fr_mod.metric(), usm_fl_mod.metric(), usm_rr_mod.metric(), usm_rl_mod.metric(),
-                tire_diam_f_mod.metric(), tire_diam_r_mod.metric(), aero_load_f_mod.metric(), aero_load_r_mod.metric()
+                tire_diam_f_mod.metric(), tire_diam_r_mod.metric(), aero_load_f_mod.metric(), aero_load_r_mod.metric(),
+                Ks_f_mod.metric(), Ks_r_mod.metric(), Karb_f_mod.metric(), Karb_r_mod.metric(),
+                sprung_CM_height_mod.metric() - rc_height_f_mod.metric()
             )
 
             segments=10*(0.1+seconds) #how many 0.1s segments are there?
@@ -1097,14 +1101,13 @@ if __name__ == '__main__':
 
             plt.rcParams.update({'font.size': 7})
 
-            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(18,9.25))
+            fig2, ([[ax0, ax1, ax2, ax3], [ax4, ax5, ax6, ax7]]) = plt.subplots(nrows=2, ncols=4, figsize=(16,8))
             fig2.suptitle(f'Lateral G Response (0-{seconds*1000}ms)')
 
             x = len(results[1])
             
             ax0.plot(results[0], force_function[0:x], label='Base')
             ax0.plot(results_mod[0], force_function_mod[0:x], label='Mod')
-            ax0.plot(0.5, 1, 'x')
             ax0.set_ylabel('Lateral Force Function (G)')
             ax0.set_xlabel(f'(Max Values); Base:{g_force} / Mod:{g_force_mod}')
             ax0.grid()
@@ -1121,6 +1124,8 @@ if __name__ == '__main__':
             ax1.grid()
             ax1.legend(loc=4)
             
+            ax2.axhline(y = standards[2], label='Control (OGTT), Base', color = 'black')
+            ax2.axhline(y = standards_mod[2], label='Control (OGTT), Mod', color = 'grey')
             ax2.plot(results[0], results[3], label='Sprung, Base')
             ax2.plot(results[0], results[4], label='Total, Base')
             ax2.plot(results_mod[0], results_mod[3], label='Sprung, Mod')
@@ -1187,6 +1192,8 @@ if __name__ == '__main__':
             ax7.grid()
             ax7.legend(loc=4)
 
+            plt.tight_layout(pad=2)
+
             canvas = FigureCanvasTkAgg(fig2, master = StepWin)
             canvas.draw() 
             canvas.get_tk_widget().pack()#grid(row=0, column=0)
@@ -1197,7 +1204,7 @@ if __name__ == '__main__':
                 wt_Decomposition_win.title('Transient Lateral G Response (Base, Mod)')
 
                 plt.rcParams.update({'font.size': 7})
-                fig3, ([ax0, ax1]) = plt.subplots(nrows=2, ncols=1, figsize=(10,8))
+                fig3, ([ax0, ax1]) = plt.subplots(nrows=2, ncols=1, figsize=(8,8))
                 fig3.suptitle(f'Transient Weight Transfer by Component (0-{seconds*1000}ms)')
 
                 ax0.plot(results[0], results[20], label='Spring, Base')
@@ -1234,6 +1241,8 @@ if __name__ == '__main__':
                 ax1.grid()
                 ax1.legend(loc=4)
 
+                plt.tight_layout(pad=2)
+
                 canvas = FigureCanvasTkAgg(fig3, master = wt_Decomposition_win)
                 canvas.draw() 
                 canvas.get_tk_widget().pack()
@@ -1243,11 +1252,11 @@ if __name__ == '__main__':
             weight_trans_decomp_button = tk.Button(StepWin, fg='blue', text = "Weight Transfer by Component", command = lambda: wt_Decomposition(results, results_mod, seconds), width=34)
             weight_trans_decomp_button.pack()#grid(row=1, column=0)
 
-            stats_button = tk.Button(StepWin, fg='blue', text = "Detailed Base/Mod Statistics", width=34)
-            stats_button.pack()#grid(row=1, column=0)
+            #stats_button = tk.Button(StepWin, fg='blue', text = "Detailed Base/Mod Statistics", width=34)
+            #stats_button.pack()#grid(row=1, column=0)
 
-            stats_button = tk.Button(StepWin, fg='blue', text = "Debug Variables and Development (Beta)", width=34)
-            stats_button.pack()#grid(row=1, column=0)
+            #stats_button = tk.Button(StepWin, fg='blue', text = "Debug Variables and Development (Beta)", width=34)
+            #stats_button.pack()#grid(row=1, column=0)
 
             StepWin.mainloop()
 
