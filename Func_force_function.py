@@ -37,7 +37,7 @@ def RSF_force_function(
     elif f_type == 4: #from telemetry
         df = pd.read_csv(path)
         force_function = force_function_mod = df['g_force_x'].to_numpy()
-        seconds = len(force_function)/1000
+        seconds = len(force_function)/500
     
     return(
         force_function, force_function_mod, seconds
